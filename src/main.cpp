@@ -78,6 +78,7 @@ int main() {
 
     // build and compile shaders
     // -------------------------
+    Shader buildingRoofShader("resources/shaders/buildingRoof.vs", "resources/shaders/buildingRoof.fs");
     Shader buildingBaseShader("resources/shaders/buildingBase.vs", "resources/shaders/buildingBase.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
@@ -158,6 +159,83 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+
+    //building roof vertices
+    float buildingRoofVertices[] = {
+            //base
+            0.5f, 0.0f, 0.5f,
+            0.5f, 0.0f, -0.5f,
+            -0.5f, 0.0f, -0.5f,
+
+            -0.5f, 0.0f, -0.5f,
+            -0.5f, 0.0f, 0.5f,
+            0.5f, 0.0f, 0.5f,
+
+
+            //front plane
+            -0.5f, 0.0f, -0.5f,
+            0.5f, 0.0f, -0.5f,
+            0.5f, 1.0f, 0.0f,
+
+            0.5f, 1.0f, 0.0f,
+            -0.5f, 1.0f, 0.0f,
+            -0.5f, 0.0f, -0.5f,
+
+
+            //back plane
+            -0.5f, 0.0f, 0.5f,
+            0.5f, 0.0f, 0.5f,
+            0.5f, 1.0f, 0.0f,
+
+            0.5f, 1.0f, 0.0f,
+            -0.5f, 1.0f, 0.0f,
+            -0.5f, 0.0f, 0.5f,
+
+
+            //left side
+            -0.5f, 0.0f, -0.5f,
+            -0.5f, 0.0f, 0.5f,
+            -0.5f, 1.0f, 0.0f,
+
+
+            //right side
+            0.5f, 0.0f, -0.5f,
+            0.5f, 0.0f, 0.5f,
+            0.5f, 1.0f, 0.0f
+    };
+
+    glm::vec3 buildingRoofPositions[] = {
+            glm::vec3(-3.0f, 0.5f, 0.0f),
+            glm::vec3( -3.0f,  0.5f, -1.0f),
+            glm::vec3(-3.0f, 0.5f, -2.0f),
+            glm::vec3(-3.0f, 0.5f, -3.0f),
+            glm::vec3( -3.0f, 0.5f, -4.0f),
+
+            glm::vec3(-2.0f,  0.5f, 0.0f),
+            glm::vec3( -1.0f, 0.5f, 0.0f),
+            glm::vec3( 0.0f,  0.5f, 0.0f),
+            glm::vec3( 1.0f, 0.5f, 0.0f),
+            glm::vec3( 2.0f,  0.5f, 0.0f),
+
+            glm::vec3( 2.0f,  0.5f, -1.0f),
+            glm::vec3(2.0f,  0.5f, -2.0f),
+            glm::vec3( 2.0f,  0.5f, -3.0f),
+            glm::vec3(2.0f,  0.5f, -4.0f)
+    };
+
+    unsigned int buildingRoofVBO, buildingRoofVAO;
+    glGenVertexArrays(1, &buildingRoofVAO);
+    glGenBuffers(1, &buildingRoofVBO);
+    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glBindVertexArray(buildingRoofVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, buildingRoofVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(buildingRoofVertices), buildingRoofVertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+
     buildingBaseShader.use();
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -184,6 +262,33 @@ int main() {
 
         // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
         // -----------------------------------------------------------------------------------------------------------
+        glm::mat4 buildingRoofProjection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        buildingRoofShader.setMat4("buildingRoofProjection", buildingRoofProjection);
+
+        // camera/view transformation
+        glm::mat4 buildingRoofView = glm::lookAt(cameraPos,  cameraPos + cameraFront, cameraUp);
+        buildingRoofShader.setMat4("buildingRoofView", buildingRoofView);
+
+        glBindVertexArray(buildingRoofVAO);
+        for (unsigned int i = 0; i < 14; i++)
+        {
+            // calculate the model matrix for each object and pass it to shader before drawing
+            glm::mat4 buildingRoofModel = glm::mat4(1.0f);
+            buildingRoofModel = glm::translate(buildingRoofModel, buildingRoofPositions[i] + glm::vec3(0.0, 0.0, 0.0));
+            buildingRoofModel = glm::rotate(buildingRoofModel, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            buildingRoofModel = glm::scale(buildingRoofModel, glm::vec3(1.0, 1.0/4.0, 1.0));
+            //float angle = 20.0f * i;
+            //buildingRoofModel = glm::rotate(buildingRoofModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            buildingRoofShader.setMat4("buildingRoofModel", buildingRoofModel);
+            //set building color
+            buildingRoofShader.setVec3("buildingRoofColor", glm::vec3(1.0-1.0/(i+1), 1.0/(i+1), 1.0/(i+1)));
+
+            glDrawArrays(GL_TRIANGLES, 0, 24);
+        }
+
+
+        // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
+        // -----------------------------------------------------------------------------------------------------------
         glm::mat4 buildingBaseProjection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         buildingBaseShader.setMat4("buildingBaseProjection", buildingBaseProjection);
 
@@ -197,13 +302,12 @@ int main() {
         {
             // calculate the model matrix for each object and pass it to shader before drawing
             glm::mat4 buildingBaseModel = glm::mat4(1.0f);
-            buildingBaseModel = glm::translate(buildingBaseModel, buildingBasePositions[i] + glm::vec3(0.0, i/2.0, 0.0));
-            buildingBaseModel = glm::scale(buildingBaseModel, glm::vec3(1.0, (i+1.0), 1.0));
+            buildingBaseModel = glm::translate(buildingBaseModel, buildingBasePositions[i] + glm::vec3(0.0, 0.0, 0.0));
+            buildingBaseModel = glm::scale(buildingBaseModel, glm::vec3(1.0, 1.0, 1.0));
             //float angle = 20.0f * i;
             //buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             buildingBaseShader.setMat4("buildingBaseModel", buildingBaseModel);
             //set building color
-            std::cout << i/10.0 << std::endl;
             buildingBaseShader.setVec3("buildingBaseColor", glm::vec3(1.0/(i+1), 1.0/(i+1), 1.0/(i+1)));
 
             glDrawArrays(GL_TRIANGLES, 0, 36);

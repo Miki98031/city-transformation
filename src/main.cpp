@@ -10,6 +10,7 @@
 #include <learnopengl/filesystem.h>
 #include <learnopengl/shader.h>
 #include <GL/gl.h>
+#include <vector>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -21,8 +22,8 @@ const unsigned int SCR_WIDTH = 1366;
 const unsigned int SCR_HEIGHT = 768;
 
 // camera
-glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  7.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraPos   = glm::vec3( 12.0f,  0.0f, -12.0f);
+glm::vec3 cameraFront = glm::vec3(-5.0f, 0.0f, 1.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
 bool firstMouse = true;
@@ -128,23 +129,145 @@ int main() {
     };
 
     // world space positions of our cubes
-    glm::vec3 buildingBasePositions[] = {
-            glm::vec3( -3.0f,  0.0f,  0.0f),
-            glm::vec3( -3.0f,  0.0f, -1.0f),
-            glm::vec3(-3.0f, 0.0f, -2.0f),
-            glm::vec3(-3.0f, 0.0f, -3.0f),
-            glm::vec3( -3.0f, -0.0f, -4.0f),
+    std::vector<glm::vec3> buildingBasePositions = {
+            //zeleni venac far upper side
+            glm::vec3( 3.0f,  0.0f, -2.0f),
+            glm::vec3( 4.0f,  0.0f, -2.0f),
+            glm::vec3( 5.0f,  0.0f, -2.0f),
 
-            glm::vec3(-2.0f,  0.0f, 0.0f),
-            glm::vec3( -1.0f, 0.0f, 0.0f),
-            glm::vec3( 0.0f,  0.0f, 0.0f),
-            glm::vec3( 1.0f, 0.0f, 0.0f),
-            glm::vec3( 2.0f,  0.0f, 0.0f),
+            //zeleni venac near upper side
+            glm::vec3( 3.0f,  0.0f, -0.0f),
+            glm::vec3( 4.0f, 0.0f, -0.0f),
+            glm::vec3(5.0f,  0.0f, -0.0f),
+            glm::vec3( 6.0f,  0.0f, -0.0f),
+            glm::vec3( 7.0f, 0.0f, -0.0f),
+            glm::vec3(8.0f,  0.0f, -0.0f),
 
-            glm::vec3( 2.0f,  0.0f, -1.0f),
-            glm::vec3(2.0f,  0.0f, -2.0f),
-            glm::vec3( 2.0f,  0.0f, -3.0f),
-            glm::vec3(2.0f,  0.0f, -4.0f)
+            //zadarska middle near side
+            glm::vec3( 2.0f,  0.0f, -5.0f),
+            glm::vec3( 3.0f,  0.0f, -5.0f),
+            glm::vec3( 4.0f,  0.0f, -5.0f),
+
+            //zadarska lower near side
+            glm::vec3( -1.0f,  0.0f, -6.0f),
+            glm::vec3( 0.0f,  0.0f, -6.0f),
+
+            //zadarska middle far side
+            glm::vec3( 2.0f,  0.0f, -7.0f),
+            glm::vec3( 3.0f,  0.0f, -7.0f),
+            glm::vec3( 4.0f,  0.0f, -7.0f),
+
+            //zadarska lower far side
+            glm::vec3( -1.0f,  0.0f, -8.0f),
+            glm::vec3( 0.0f,  0.0f, -8.0f),
+            glm::vec3( 1.0f,  0.0f, -8.0f),
+
+            //kralja petra near side
+            glm::vec3( 0.0f,  0.0f, -8.7f),
+            glm::vec3( 1.0f,  0.0f, -8.7f),
+            glm::vec3( 2.0f,  0.0f, -8.7f),
+            //glm::vec3( 3.0f,  0.0f, -8.7f),
+            glm::vec3( 4.0f,  0.0f, -8.7f),
+            glm::vec3( 5.0f,  0.0f, -8.7f),
+            glm::vec3( 6.0f,  0.0f, -8.7f),
+
+            //kralja petra far side
+            glm::vec3( 0.1f,  0.0f, -10.4f),
+            glm::vec3( 1.1f,  0.0f, -10.4f),
+            glm::vec3( 2.1f,  0.0f, -10.4f),
+            //glm::vec3( 3.1f,  0.0f, -10.4f),
+            glm::vec3( 4.1f,  0.0f, -10.4f),
+            glm::vec3( 5.1f,  0.0f, -10.4f),
+            glm::vec3( 6.1f,  0.0f, -10.4f),
+
+            //river upper far side
+            glm::vec3( -1.0f,  0.0f, -11.4f),
+            glm::vec3( -1.0f,  0.0f, -12.4f),
+            glm::vec3( -1.0f,  0.0f, -13.4f),
+            glm::vec3( -1.0f,  0.0f, -14.4f),
+            glm::vec3( -1.0f,  0.0f, -15.4f),
+            glm::vec3( -1.0f,  0.0f, -16.4f),
+            glm::vec3( -1.0f,  0.0f, -17.4f),
+
+            //river upper near side
+            //glm::vec3( -3.0f,  0.0f, -10.4f),
+            glm::vec3( -3.0f,  0.0f, -11.4f),
+            glm::vec3( -3.0f,  0.0f, -12.4f),
+            glm::vec3( -3.0f,  0.0f, -13.4f),
+            glm::vec3( -3.0f,  0.0f, -14.4f),
+            glm::vec3( -3.0f,  0.0f, -15.4f),
+            glm::vec3( -3.0f,  0.0f, -16.4f),
+            glm::vec3( -3.0f,  0.0f, -17.4f),
+            glm::vec3( -3.0f,  0.0f, -18.4f),
+            glm::vec3( -3.0f,  0.0f, -19.4f),
+            glm::vec3( -3.0f,  0.0f, -20.4f),
+            glm::vec3( -3.0f,  0.0f, -21.4f),
+
+            //river lower near side
+            glm::vec3( -3.0f,  0.0f,  0.6f),
+            glm::vec3( -3.0f,  0.0f,  -0.4f),
+            glm::vec3( -3.0f,  0.0f, -1.4f),
+            glm::vec3(-3.0f, 0.0f, -2.4f),
+            glm::vec3(-3.0f, 0.0f, -3.4f),
+            glm::vec3( -3.0f, 0.0f, -4.4f),
+            glm::vec3( -3.0f,  0.0f,  -5.4f),
+            glm::vec3( -3.0f,  0.0f, -6.4f),
+            glm::vec3(-3.0f, 0.0f, -7.4f),
+            glm::vec3(-3.0f, 0.0f, -8.4f),
+            glm::vec3( -3.0f, 0.0f, -9.4f),
+
+            //river lower far side
+            glm::vec3( -1.0f,  0.0f, -5.0f),
+            glm::vec3(0.0f, 0.0f, -5.0f),
+
+            //zeleni venac near lower side
+            glm::vec3(-2.07f,  0.0f, 0.11f),
+            glm::vec3( -1.07f, 0.0f, 0.11f),
+            glm::vec3( -0.07f,  0.0f, 0.11f),
+            glm::vec3( 0.93f, 0.0f, 0.11f),
+            glm::vec3( 1.93f,  0.0f, 0.11f),
+
+            //kneza sime markovica near side
+            glm::vec3( 4.6f,  0.0f, -13.4f),
+            glm::vec3( 4.6f,  0.0f, -14.4f),
+            glm::vec3( 4.6f,  0.0f, -15.4f),
+            glm::vec3( 4.6f,  0.0f, -16.4f),
+            glm::vec3( 4.6f,  0.0f, -17.4f),
+
+            //kneza sime markovica far side
+            glm::vec3( 6.6f,  0.0f, -11.4f),
+            glm::vec3( 6.6f,  0.0f, -12.4f),
+            glm::vec3( 6.6f,  0.0f, -13.4f),
+            glm::vec3( 6.6f,  0.0f, -14.4f),
+            glm::vec3( 6.6f,  0.0f, -15.4f),
+            glm::vec3( 6.6f,  0.0f, -16.4f),
+            glm::vec3( 6.6f,  0.0f, -17.4f),
+            glm::vec3( 6.6f,  0.0f, -18.4f),
+            glm::vec3( 6.6f,  0.0f, -19.4f),
+            glm::vec3( 6.6f,  0.0f, -20.4f),
+            glm::vec3( 6.6f,  0.0f, -21.4f),
+
+            //pop-lukina near side
+            glm::vec3( 7.5f,  0.0f, -6.8f),
+            glm::vec3( 7.5f,  0.0f, -7.8f),
+            glm::vec3( 7.5f,  0.0f, -8.8f),
+            glm::vec3( 7.5f,  0.0f, -9.8f),
+
+            //pop-lukina far side
+            glm::vec3( 9.5f,  0.0f, -2.8f),
+            glm::vec3( 9.5f,  0.0f, -3.8f),
+            glm::vec3( 9.5f,  0.0f, -4.8f),
+            glm::vec3( 9.5f,  0.0f, -5.8f),
+            glm::vec3( 9.5f,  0.0f, -6.8f),
+            glm::vec3( 9.5f,  0.0f, -7.8f),
+            glm::vec3( 9.5f,  0.0f, -8.8f),
+            glm::vec3( 9.5f,  0.0f, -9.8f),
+            glm::vec3( 9.5f,  0.0f, -10.8f),
+
+            //srebrenicka upper side
+            glm::vec3(2.0f, 0.0f, -2.215f),
+            glm::vec3( 2.0f,  0.0f, -3.215f),
+            glm::vec3(2.0f,  0.0f, -4.215f),
     };
 
     unsigned int VBO, VAO;
@@ -204,7 +327,7 @@ int main() {
             0.5f, 1.0f, 0.0f
     };
 
-    glm::vec3 buildingRoofPositions[] = {
+    std::vector<glm::vec3> buildingRoofPositions = {
             glm::vec3(-3.0f, 0.5f, 0.0f),
             glm::vec3( -3.0f,  0.5f, -1.0f),
             glm::vec3(-3.0f, 0.5f, -2.0f),
@@ -216,8 +339,14 @@ int main() {
             glm::vec3( 0.0f,  0.5f, 0.0f),
             glm::vec3( 1.0f, 0.5f, 0.0f),
             glm::vec3( 2.0f,  0.5f, 0.0f),
+            glm::vec3(3.0f,  0.5f, 0.0f),
+            glm::vec3( 4.0f, 0.5f, 0.0f),
+            glm::vec3( 5.0f,  0.5f, 0.0f),
+            glm::vec3( 6.0f, 0.5f, 0.0f),
+            glm::vec3( 7.0f,  0.5f, 0.0f),
 
-            glm::vec3( 2.0f,  0.5f, -1.0f),
+
+            //glm::vec3( 2.0f,  0.5f, -1.0f),
             glm::vec3(2.0f,  0.5f, -2.0f),
             glm::vec3( 2.0f,  0.5f, -3.0f),
             glm::vec3(2.0f,  0.5f, -4.0f)
@@ -235,6 +364,8 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    auto buildingBaseLength = buildingBasePositions.size();
+    auto buildingRoofLength = buildingRoofPositions.size();
 
     buildingBaseShader.use();
 
@@ -270,7 +401,7 @@ int main() {
         buildingRoofShader.setMat4("buildingRoofView", buildingRoofView);
 
         glBindVertexArray(buildingRoofVAO);
-        for (unsigned int i = 0; i < 14; i++)
+        for (unsigned int i = 0; i < buildingRoofLength; i++)
         {
             // calculate the model matrix for each object and pass it to shader before drawing
             glm::mat4 buildingRoofModel = glm::mat4(1.0f);
@@ -281,9 +412,9 @@ int main() {
             //buildingRoofModel = glm::rotate(buildingRoofModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             buildingRoofShader.setMat4("buildingRoofModel", buildingRoofModel);
             //set building color
-            buildingRoofShader.setVec3("buildingRoofColor", glm::vec3(1.0-1.0/(i+1), 1.0/(i+1), 1.0/(i+1)));
+            buildingRoofShader.setVec3("buildingRoofColor", glm::vec3((i+1.0)/buildingRoofLength, 1.0, 1.0));
 
-            glDrawArrays(GL_TRIANGLES, 0, 24);
+            //glDrawArrays(GL_TRIANGLES, 0, 24);
         }
 
 
@@ -298,17 +429,69 @@ int main() {
 
         // render boxes
         glBindVertexArray(VAO);
-        for (unsigned int i = 0; i < 14; i++)
+        for (unsigned int i = 0; i < buildingBaseLength; i++)
         {
             // calculate the model matrix for each object and pass it to shader before drawing
             glm::mat4 buildingBaseModel = glm::mat4(1.0f);
+
+            if(i>=0 && i < 9) {
+                buildingBaseModel = glm::translate(buildingBaseModel, glm::vec3(-0.215, 0.0, 1.013));
+                buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(20.0f), glm::vec3(0.0f, 10.0f, 0.0f));
+            }
+
+            if(i>=9 && i<12 || i>=14 && i<17) {
+                buildingBaseModel = glm::translate(buildingBaseModel, glm::vec3(-2.05, 0.0, -1.57));
+                buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(-30.0f), glm::vec3(0.0f, 10.0f, 0.0f));
+            }
+
+            if(i>=12 && i<14 || i>=17 && i<20) {
+                buildingBaseModel = glm::translate(buildingBaseModel, glm::vec3(-1.48, 0.0, 0.2));
+                buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(-15.0f), glm::vec3(0.0f, 10.0f, 0.0f));
+            }
+
+            if(i>=20 && i<26 || i>=26 && i<32) {
+                buildingBaseModel = glm::translate(buildingBaseModel, glm::vec3(2.29, 0.0, 0.11));
+                buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(20.0f), glm::vec3(0.0f, 10.0f, 0.0f));
+            }
+
+            if(i>=32 && i<39 || i>=39 && i<50) {
+                buildingBaseModel = glm::translate(buildingBaseModel, glm::vec3(-4.13, 0.0, 0.75));
+                buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(-20.0f), glm::vec3(0.0f, 10.0f, 0.0f));
+            }
+
+            if(i>=50 && i<61) {
+                buildingBaseModel = glm::translate(buildingBaseModel, glm::vec3(-0.08, 0.0, -0.49));
+                buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(1.0f), glm::vec3(0.0f, 10.0f, 0.0f));
+            }
+
+            if(i>=63 && i<68) {
+                buildingBaseModel = glm::translate(buildingBaseModel, glm::vec3(-0.0, 0.0, -0.0));
+                buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(1.0f), glm::vec3(0.0f, 10.0f, 0.0f));
+            }
+
+            if(i>=68 && i<73 || i>=73 && i<84) {
+                buildingBaseModel = glm::translate(buildingBaseModel, glm::vec3(9.899, 0.0, 0.118));
+                buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(40.051f), glm::vec3(0.0f, 10.0f, 0.0f));
+            }
+
+            if(i>=84 && i<88 || i>=88 && i<97) {
+                buildingBaseModel = glm::translate(buildingBaseModel, glm::vec3(-1.41, 0.0, 0.482));
+                buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(0.0f), glm::vec3(0.0f, 10.0f, 0.0f));
+            }
+
+            if(i>=97 && i<100) {
+                buildingBaseModel = glm::translate(buildingBaseModel, glm::vec3(-0.406, 0.0, -0.15));
+                buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(-5.0f), glm::vec3(0.0f, 10.0f, 0.0f));
+            }
+
             buildingBaseModel = glm::translate(buildingBaseModel, buildingBasePositions[i] + glm::vec3(0.0, 0.0, 0.0));
+
             buildingBaseModel = glm::scale(buildingBaseModel, glm::vec3(1.0, 1.0, 1.0));
             //float angle = 20.0f * i;
             //buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             buildingBaseShader.setMat4("buildingBaseModel", buildingBaseModel);
             //set building color
-            buildingBaseShader.setVec3("buildingBaseColor", glm::vec3(1.0/(i+1), 1.0/(i+1), 1.0/(i+1)));
+            buildingBaseShader.setVec3("buildingBaseColor", glm::vec3((i+1.0)/buildingBaseLength, (i+1.0)/buildingBaseLength, (i+1.0)/buildingBaseLength));
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }

@@ -12,7 +12,6 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-//#include "learnopengl/filesystem.h"
 #include "stb_image.h"
 
 class Cobblestone {
@@ -63,7 +62,7 @@ public:
         int i = 0;
 
         while(in >> x >> y >> z >> s >> t >> r) {
-            std::cout << x << " " << y << " " << z << " " << s << " " << t << " " << r << std::endl;
+            //std::cout << x << " " << y << " " << z << " " << s << " " << t << " " << r << std::endl;
             vertices[i++] = x;
             vertices[i++] = y;
             vertices[i++] = z;
@@ -71,7 +70,7 @@ public:
             vertices[i++] = t;
             vertices[i++] = r;
         }
-        std::cout << i << std::endl;
+        //std::cout << i << std::endl;
     }
 
     static unsigned getCobblestoneTexture() {

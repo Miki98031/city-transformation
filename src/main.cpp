@@ -13,6 +13,7 @@
 #include <vector>
 #include "../resources/buildings/Building.h"
 #include "../resources/terrains/Cobblestone.h"
+#include "../resources/terrains/Grass.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -23,7 +24,9 @@ void drawBuildingBase(Shader buildingBaseShader, std::vector<Building*> &buildin
 
 void drawBuildingRoof(Shader buildingRoofShader, std::vector<Building*> &buildings);
 
-void drawCobblestone(Shader shader, Cobblestone cobblestone, unsigned cobblestone_texture);
+void drawCobblestone(Shader cobblestoneShader, Cobblestone cobblestone, unsigned cobblestone_texture);
+
+void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture);
 
 // settings
 const unsigned int SCR_WIDTH = 1366;
@@ -91,6 +94,7 @@ int main() {
     Shader buildingBaseShader("resources/shaders/buildingBase.vs", "resources/shaders/buildingBase.fs");
 
     Shader cobblestoneShader("resources/shaders/cobblestone.vs", "resources/shaders/cobblestone.fs");
+    Shader grassShader("resources/shaders/grass.vs", "resources/shaders/grass.fs");
 
     std::vector<Building*> buildings;
     Building::makeInnerBuildings(buildings);
@@ -98,9 +102,14 @@ int main() {
 
     Cobblestone cobblestone;
     unsigned cobblestone_texture = Cobblestone::getCobblestoneTexture();
-
     cobblestoneShader.use();
     cobblestoneShader.setInt("texture1", 0);
+
+    Grass grass;
+    unsigned grass_texture = Grass::getGrassTexture();
+    grassShader.use();
+    grassShader.setInt("texture2", 1);
+
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // render loop
@@ -125,6 +134,7 @@ int main() {
         drawBuildingRoof(buildingRoofShader, buildings);
 
         drawCobblestone(cobblestoneShader, cobblestone, cobblestone_texture);
+        drawGrass(grassShader, grass, grass_texture);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -257,6 +267,43 @@ void drawCobblestone(Shader cobblestoneShader, Cobblestone cobblestone, unsigned
     //cobblestoneShader.setVec3("cobblestoneColor", 0.0, 1.0, 0.0);
 
     glDrawArrays(GL_TRIANGLES, 0, 12);
+}
+
+void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture) {
+    //bind Texture
+    grassShader.use();
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, grass_texture);
+
+    // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
+    // -----------------------------------------------------------------------------------------------------------
+    glm::mat4 grassProjection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+    grassShader.setMat4("grassProjection", grassProjection);
+
+    // camera/view transformation
+    glm::mat4 grassView = glm::lookAt(cameraPos,  cameraPos + cameraFront, cameraUp);
+    grassShader.setMat4("grassView", grassView);
+
+    // render boxes
+    glBindVertexArray(Grass::getGrassVAO());
+
+    // calculate the model matrix for each object and pass it to shader before drawing
+    glm::mat4 grassModel = glm::mat4(1.0f);
+
+    //grassModel = glm::translate(grassModel, buildings[i]->getAdditionalTranslate());
+
+    //grassModel = glm::rotate(grassModel, glm::radians(buildings[i]->getRotateAngle()), glm::vec3(0.0f, 10.0f, 0.0f));
+
+    grassModel = glm::translate(grassModel, glm::vec3(-50.0, 0.0, -50.0));
+
+    grassModel = glm::scale(grassModel, glm::vec3(1.0, 1.0, 1.0));
+
+    grassShader.setMat4("grassModel", grassModel);
+
+    //set building color
+    //grassShader.setVec3("grassColor", 0.0, 1.0, 0.0);
+
+    glDrawArrays(GL_TRIANGLES, 0, 60000);
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly

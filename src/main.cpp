@@ -226,14 +226,6 @@ void drawCobblestone(Shader cobblestoneShader, Cobblestone cobblestone, unsigned
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, cobblestone_texture);
 
-    float ang_rad = glm::radians(30.0); // angle in radians
-
-    glm::mat2 rotMat;
-/*            {
-                    static_cast<float>(cos(ang_rad)), static_cast<float>(sin(ang_rad)),
-                    static_cast<float>(-sin(ang_rad)), static_cast<float>(cos(ang_rad ))
-            };*/
-
     //cobblestoneShader.setMat2("rotMat", rotMat);
 
     // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)

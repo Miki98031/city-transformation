@@ -88,7 +88,7 @@ public:
             // load image, create texture and generate mipmaps
             int width, height, nrChannels;
             // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
-            std::string texturePath = "resources/textures/cobblestone.jpg";
+            std::string texturePath = "resources/textures/cobblestone9.jpg";
             unsigned char *data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
             if (data)
             {

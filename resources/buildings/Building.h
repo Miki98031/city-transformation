@@ -15,6 +15,10 @@
 #include <iostream>
 #include <sstream>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "BuildingBase.h"
 #include "BuildingRoof.h"
 
@@ -31,6 +35,9 @@ private:
 private:
     BuildingBase* base;
     BuildingRoof* roof;
+
+private:
+    static std::vector<std::pair<float, float>> buildingCenterPosition;
 
 public:
     Building(glm::vec3 position, float rotateAngle, glm::vec3 additionalTranslate) {
@@ -130,7 +137,7 @@ public:
                 additionalTranslate = glm::vec3(-0.406, 0.0, -0.15);
             }
             else if(line.find("//river upper near side") == 0) {
-                rotateAngle = 0.0;
+                rotateAngle = 0.00001;
                 additionalTranslate = glm::vec3(0.082, 0.0, -0.082);
             }
 
@@ -163,8 +170,23 @@ public:
                 if(line.find("*******************************************") == 0) {
                     break;
                 }
+
                 iss >> position.x >> position.y >> position.z;
                 buildings.push_back(new Building(position, rotateAngle, additionalTranslate));
+
+                glm::mat3 yRotMat = {
+                        cos((glm::radians(rotateAngle))),  0.0, sin(glm::radians(rotateAngle)),
+                                       0.0,                          1.0,                0.0,
+                        -sin(glm::radians(rotateAngle)), 0.0, cos(glm::radians(rotateAngle))
+                };
+                glm::vec3 position_after_rotation = position * yRotMat;
+                glm::vec3 position_after_additional_translation = position_after_rotation + additionalTranslate;
+
+                //std::cout << position.x << " " << position.y << " " << position.z << std::endl;
+                //std::cout << position_after_rotation.x << " " << position_after_rotation.y << " " << position_after_rotation.z << std::endl;
+                //std::cout << position_after_additional_translation.x << " " << position_after_additional_translation.y << " " << position_after_additional_translation.z << std::endl << std::endl;
+
+                setBuildingCenterPosition(position_after_additional_translation.x, position_after_additional_translation.z);
             }
         }
     }
@@ -227,10 +249,21 @@ public:
                 if(line.find("*******************************************") == 0) {
                     break;
                 }
+
                 iss >> position.x >> position.y >> position.z;
                 buildings.push_back(new Building(position, rotateAngle, additionalTranslate));
+
+                setBuildingCenterPosition(position.x, position.z);
             }
         }
+    }
+
+    static void setBuildingCenterPosition(float x, float z) {
+        buildingCenterPosition.push_back(std::make_pair(x, z));
+    }
+
+    static std::vector<std::pair<float, float>>& getBuildingCenterPosition() {
+        return buildingCenterPosition;
     }
 };
 

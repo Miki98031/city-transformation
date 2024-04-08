@@ -186,7 +186,7 @@ void drawBuildingBase(Shader buildingBaseShader, std::vector<Building*> &buildin
 
         buildingBaseModel = glm::translate(buildingBaseModel, buildings[i]->getAdditionalTranslate());
 
-        buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(buildings[i]->getRotateAngle()), glm::vec3(0.0f, 10.0f, 0.0f));
+        buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(buildings[i]->getRotateAngle()), glm::vec3(0.0f, 1.0f, 0.0f));
 
         buildingBaseModel = glm::translate(buildingBaseModel, buildings[i]->getPosition() + glm::vec3(0.0, 0.5, 0.0));
 
@@ -360,6 +360,8 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
+    glm::vec3 cameraPosPrev = cameraPos;
+
     float cameraSpeed = 2.5 * deltaTime;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         cameraPos += cameraSpeed * cameraFront;
@@ -369,9 +371,27 @@ void processInput(GLFWwindow *window)
         cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-    
+
+    //prevent movement under terrain
     if (cameraPos.y < 0.11) {
         cameraPos.y = 0.11;
+    }
+
+    //prevent movement through buildings
+    float buildingHeight = 2.0;
+    if(cameraPos.y <= buildingHeight) {
+        std::vector<std::pair<float, float>> buildingCenterPosition = Building::getBuildingCenterPosition();
+        for (int i = 0; i < buildingCenterPosition.size(); i++) {
+            float p = buildingCenterPosition[i].first;
+            float q = buildingCenterPosition[i].second;
+            float r = 0.7;
+
+            if ((cameraPos.x - p) * (cameraPos.x - p) + (cameraPos.z - q) * (cameraPos.z - q) <= r * r) {
+                cameraPos.x = cameraPosPrev.x;
+                cameraPos.z = cameraPosPrev.z;
+                cameraPos.y = cameraPosPrev.y;
+            }
+        }
     }
 }
 

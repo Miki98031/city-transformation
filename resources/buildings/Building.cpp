@@ -3,3 +3,4 @@
 //
 
 #include "Building.h"
+std::vector<std::pair<float, float>> Building::buildingCenterPosition;

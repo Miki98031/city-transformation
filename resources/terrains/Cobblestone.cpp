@@ -3,7 +3,7 @@
 //
 
 #include "Cobblestone.h"
-float Cobblestone::vertices[Cobblestone::numberOfVertices] = {0}; // Initialize static member variable
+float Cobblestone::vertices[Cobblestone::count] = {0}; // Initialize static member variable
 int Cobblestone::counterVertices = 0;
 int Cobblestone::counterVAO = 0;
 int Cobblestone::counterTexture = 0;

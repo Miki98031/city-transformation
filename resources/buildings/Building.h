@@ -129,6 +129,30 @@ public:
                 rotateAngle = -5.0;
                 additionalTranslate = glm::vec3(-0.406, 0.0, -0.15);
             }
+            else if(line.find("//river upper near side") == 0) {
+                rotateAngle = 0.0;
+                additionalTranslate = glm::vec3(0.082, 0.0, -0.082);
+            }
+
+            else if(line.find("//kneza sime markovica far side") == 0) {
+                rotateAngle = 40.051;
+                additionalTranslate = glm::vec3(9.899, 0.0, 0.118);
+            }
+
+            else if(line.find("//ulaz desno gore") == 0) {
+                rotateAngle = 0.0;
+                additionalTranslate = glm::vec3(-0.235, 0.0, -0.183);
+            }
+
+            else if(line.find("//ulaz desno dole") == 0) {
+                rotateAngle = 0.0;
+                additionalTranslate = glm::vec3(0.315, 0.0, 0.347);
+            }
+
+            else if(line.find("//zid desno blize") == 0) {
+                rotateAngle = -10.0;
+                additionalTranslate = glm::vec3(-2.67, 0.0, -1.522);
+            }
 
             else {
                 break;
@@ -160,33 +184,38 @@ public:
             }
 
             if(line.find("//river upper near side") == 0) {
-                rotateAngle = -20.0;
-                additionalTranslate = glm::vec3(-4.13, 0.0, 0.75);
+                rotateAngle = 0.0;
+                additionalTranslate = glm::vec3(0.0, 0.0, 0.0);
             }
 
             else if(line.find("//river lower near side") == 0) {
-                rotateAngle = 1.0;
-                additionalTranslate = glm::vec3(-0.08, 0.0, -0.49);
+                rotateAngle = 0.0;
+                additionalTranslate = glm::vec3(0.0, 0.0, 0.0);
             }
 
             else if(line.find("//zeleni venac near upper side") == 0) {
-                rotateAngle = 20.0;
-                additionalTranslate = glm::vec3(-0.215, 0.0, 1.013);
+                rotateAngle = 0.0;
+                additionalTranslate = glm::vec3(0.0, 0.0, 0.0);
             }
 
             else if(line.find("//zeleni venac near lower side") == 0) {
-                rotateAngle = 1.0;
+                rotateAngle = 0.0;
                 additionalTranslate = glm::vec3(-0.0, 0.0, -0.0);
             }
 
             else if(line.find("//kneza sime markovica far side") == 0) {
-                rotateAngle = 40.051;
-                additionalTranslate = glm::vec3(9.899, 0.0, 0.118);
+                rotateAngle = 0.0;
+                additionalTranslate = glm::vec3(0.0, 0.0, 0.0);
             }
 
             else if(line.find("//pop-lukina far side") == 0) {
                 rotateAngle = 0.0;
-                additionalTranslate = glm::vec3(-1.41, 0.0, 0.482);
+                additionalTranslate = glm::vec3(0.0, 0.0, 0.0);
+            }
+
+            else if(line.find("//pariska far side") == 0) {
+                rotateAngle = 0.0;
+                additionalTranslate = glm::vec3(0.0, 0.0, 0.0);
             }
 
             else {

@@ -1,9 +1,9 @@
 //
-// Created by mihailo on 6.4.24..
+// Created by mihailo on 8.4.24..
 //
 
-#ifndef PROJECT_BASE_COBBLESTONE_H
-#define PROJECT_BASE_COBBLESTONE_H
+#ifndef PROJECT_BASE_ROAD_H
+#define PROJECT_BASE_ROAD_H
 
 #include <vector>
 #include <glad/glad.h>
@@ -14,12 +14,12 @@
 #include <iostream>
 #include "stb_image.h"
 
-class Cobblestone {
+class Road {
 private:
-    const static int SIZE_X = 13;
-    const static int SIZE_Z = 25;
-    const static int VERTEX_COUNT_X = 13;
-    const static int VERTEX_COUNT_Z = 25;
+    const static int SIZE_X = 40;
+    const static int SIZE_Z = 1;
+    const static int VERTEX_COUNT_X = 40;
+    const static int VERTEX_COUNT_Z = 1;
     const static int count = VERTEX_COUNT_X * VERTEX_COUNT_Z * 6 * 5;
 
     static float vertices[count];
@@ -28,12 +28,12 @@ private:
 private:
     static int counterVAO;
     static int counterTexture;
-    static unsigned cobblestoneVAO;
-    static unsigned cobblestoneTexture;
-    static unsigned cobblestoneVBO;
+    static unsigned roadVAO;
+    static unsigned roadTexture;
+    static unsigned roadVBO;
 
 public:
-    Cobblestone() {
+    Road() {
         if (counterVertices++ == 0) generateTerrain();
     }
 
@@ -70,7 +70,7 @@ public:
         }
     }
 
-    static unsigned getCobblestoneVAO() {
+    static unsigned getRoadVAO() {
         if (counterVAO++ == 0) {
             unsigned int VBO, VAO;
             glGenVertexArrays(1, &VAO);
@@ -87,14 +87,14 @@ public:
             glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3*sizeof(float)));
             glEnableVertexAttribArray(1);
 
-            cobblestoneVBO = VBO;
-            cobblestoneVAO = VAO;
+            roadVBO = VBO;
+            roadVAO = VAO;
         }
 
-        return cobblestoneVAO;
+        return roadVAO;
     }
 
-    static unsigned getCobblestoneTexture() {
+    static unsigned getRoadTexture() {
         if (counterTexture++ == 0) {
             unsigned int texture;
             glGenTextures(1, &texture);
@@ -108,7 +108,7 @@ public:
             // load image, create texture and generate mipmaps
             int width, height, nrChannels;
             // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
-            std::string texturePath = "resources/textures/cobblestone9.jpg";
+            std::string texturePath = "resources/textures/road.jpg";
             unsigned char *data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
             if (data)
             {
@@ -121,12 +121,12 @@ public:
             }
             stbi_image_free(data);
 
-            cobblestoneTexture = texture;
+            roadTexture = texture;
         }
 
-        return cobblestoneTexture;
+        return roadTexture;
     }
 };
 
 
-#endif //PROJECT_BASE_COBBLESTONE_H
+#endif //PROJECT_BASE_ROAD_H

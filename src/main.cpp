@@ -14,6 +14,7 @@
 #include "../resources/buildings/Building.h"
 #include "../resources/terrains/Cobblestone.h"
 #include "../resources/terrains/Grass.h"
+#include "../resources/terrains/Road.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -28,12 +29,14 @@ void drawCobblestone(Shader cobblestoneShader, Cobblestone cobblestone, unsigned
 
 void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture);
 
+void drawRoad(Shader roadShader, Road road, unsigned road_texture);
+
 // settings
 const unsigned int SCR_WIDTH = 1366;
 const unsigned int SCR_HEIGHT = 768;
 
 // camera
-glm::vec3 cameraPos   = glm::vec3( 12.0f,  0.0f, -12.0f);
+glm::vec3 cameraPos   = glm::vec3( 12.0f,  0.11f, -12.0f);
 glm::vec3 cameraFront = glm::vec3(-5.0f, 0.0f, 1.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
@@ -95,6 +98,7 @@ int main() {
 
     Shader cobblestoneShader("resources/shaders/cobblestone.vs", "resources/shaders/cobblestone.fs");
     Shader grassShader("resources/shaders/grass.vs", "resources/shaders/grass.fs");
+    Shader roadShader("resources/shaders/road.vs", "resources/shaders/road.fs");
 
     std::vector<Building*> buildings;
     Building::makeInnerBuildings(buildings);
@@ -109,6 +113,11 @@ int main() {
     unsigned grass_texture = Grass::getGrassTexture();
     grassShader.use();
     grassShader.setInt("texture2", 1);
+
+    Road road;
+    unsigned road_texture = Road::getRoadTexture();
+    roadShader.use();
+    roadShader.setInt("texture3", 2);
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -135,6 +144,7 @@ int main() {
 
         drawCobblestone(cobblestoneShader, cobblestone, cobblestone_texture);
         drawGrass(grassShader, grass, grass_texture);
+        drawRoad(roadShader, road, road_texture);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -257,7 +267,7 @@ void drawCobblestone(Shader cobblestoneShader, Cobblestone cobblestone, unsigned
 
     //cobblestoneModel = glm::rotate(cobblestoneModel, glm::radians(buildings[i]->getRotateAngle()), glm::vec3(0.0f, 10.0f, 0.0f));
 
-    cobblestoneModel = glm::translate(cobblestoneModel, glm::vec3(0.0, 0.0, 0.0));
+    cobblestoneModel = glm::translate(cobblestoneModel, glm::vec3(-3.5, 0.0, -24.5));
 
     cobblestoneModel = glm::scale(cobblestoneModel, glm::vec3(1.0, 1.0, 1.0));
 
@@ -266,7 +276,7 @@ void drawCobblestone(Shader cobblestoneShader, Cobblestone cobblestone, unsigned
     //set building color
     //cobblestoneShader.setVec3("cobblestoneColor", 0.0, 1.0, 0.0);
 
-    glDrawArrays(GL_TRIANGLES, 0, 12);
+    glDrawArrays(GL_TRIANGLES, 0, 1950);
 }
 
 void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture) {
@@ -294,7 +304,7 @@ void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture) {
 
     //grassModel = glm::rotate(grassModel, glm::radians(buildings[i]->getRotateAngle()), glm::vec3(0.0f, 10.0f, 0.0f));
 
-    grassModel = glm::translate(grassModel, glm::vec3(-50.0, 0.0, -50.0));
+    grassModel = glm::translate(grassModel, glm::vec3(-50.5, 0.0, -50.0));
 
     grassModel = glm::scale(grassModel, glm::vec3(1.0, 1.0, 1.0));
 
@@ -304,6 +314,43 @@ void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture) {
     //grassShader.setVec3("grassColor", 0.0, 1.0, 0.0);
 
     glDrawArrays(GL_TRIANGLES, 0, 60000);
+}
+
+void drawRoad(Shader roadShader, Road road, unsigned road_texture) {
+    //bind Texture
+    roadShader.use();
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, road_texture);
+
+    // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
+    // -----------------------------------------------------------------------------------------------------------
+    glm::mat4 roadProjection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+    roadShader.setMat4("roadProjection", roadProjection);
+
+    // camera/view transformation
+    glm::mat4 roadView = glm::lookAt(cameraPos,  cameraPos + cameraFront, cameraUp);
+    roadShader.setMat4("roadView", roadView);
+
+    // render boxes
+    glBindVertexArray(Road::getRoadVAO());
+
+    // calculate the model matrix for each object and pass it to shader before drawing
+    glm::mat4 roadModel = glm::mat4(1.0f);
+
+    //roadModel = glm::translate(roadModel, buildings[i]->getAdditionalTranslate());
+
+    //roadModel = glm::rotate(roadModel, glm::radians(buildings[i]->getRotateAngle()), glm::vec3(0.0f, 10.0f, 0.0f));
+
+    roadModel = glm::translate(roadModel, glm::vec3(9.5, 0.0, -12.5));
+
+    roadModel = glm::scale(roadModel, glm::vec3(1.0, 1.0, 1.0));
+
+    roadShader.setMat4("roadModel", roadModel);
+
+    //set building color
+    //roadShader.setVec3("roadColor", 0.0, 1.0, 0.0);
+
+    glDrawArrays(GL_TRIANGLES, 0, 240);
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -322,6 +369,10 @@ void processInput(GLFWwindow *window)
         cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    
+    if (cameraPos.y < 0.11) {
+        cameraPos.y = 0.11;
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -356,10 +407,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     pitch += yoffset;
 
     // make sure that when pitch is out of bounds, screen doesn't get flipped
-    if (pitch > 89.0f)
-        pitch = 89.0f;
-    if (pitch < -89.0f)
-        pitch = -89.0f;
+    if (pitch > 89.9f)
+        pitch = 89.9f;
+    if (pitch < -89.9f)
+        pitch = -89.9f;
 
     glm::vec3 front;
     front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));

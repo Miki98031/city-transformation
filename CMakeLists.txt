@@ -43,7 +43,7 @@ include_directories(${CMAKE_BINARY_DIR}/configuration)
 
 include_directories(include/)
 add_executable(${PROJECT_NAME}
-        ${SOURCES} resources/buildings/Building.cpp resources/buildings/Building.h resources/buildings/BuildingBase.cpp resources/buildings/BuildingBase.h resources/buildings/BuildingRoof.cpp resources/buildings/BuildingRoof.h resources/terrains/Cobblestone.cpp resources/terrains/Cobblestone.h resources/terrains/Grass.cpp resources/terrains/Grass.h)
+        ${SOURCES} resources/buildings/Building.cpp resources/buildings/Building.h resources/buildings/BuildingBase.cpp resources/buildings/BuildingBase.h resources/buildings/BuildingRoof.cpp resources/buildings/BuildingRoof.h resources/terrains/Cobblestone.cpp resources/terrains/Cobblestone.h resources/terrains/Grass.cpp resources/terrains/Grass.h resources/terrains/Road.cpp resources/terrains/Road.h)
 
 target_link_libraries(${PROJECT_NAME} ${LIBS})
 

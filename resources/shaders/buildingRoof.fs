@@ -1,9 +1,11 @@
 #version 330 core
 out vec4 FragColor;
 
-uniform vec3 buildingRoofColor;
+in vec2 buildingRoofTexCoord;
+
+uniform sampler2D texture5;
 
 void main()
 {
-	FragColor = vec4(buildingRoofColor, 1.0f);
+	FragColor = texture(texture5, buildingRoofTexCoord);
 }

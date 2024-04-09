@@ -12,15 +12,18 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include "stb_image.h"
 
 class BuildingBase {
 private:
-    const static int numberOfVertices = 108;
+    const static int numberOfVertices = 180;
     static float vertices[numberOfVertices];
     static int counterVertices;
 
 private:
+    static int counterTexture;
     static int counterVAO;
+    static unsigned buildingBaseTexture;
     static unsigned buildingBaseVAO;
     static unsigned buildingBaseVBO;
 
@@ -38,6 +41,9 @@ public:
         this->additionalTranslate = additionalTranslate;
     }
 
+    virtual float getBuildingBaseHeight() = 0;
+    virtual unsigned getBuildingBaseTexture() = 0;
+
     static unsigned getBuildingBaseVAO() {
         if (counterVAO++ == 0) {
             unsigned int VBO, VAO;
@@ -49,8 +55,11 @@ public:
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
             glEnableVertexAttribArray(0);
+
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3*sizeof(float)));
+            glEnableVertexAttribArray(1);
 
             buildingBaseVBO = VBO;
             buildingBaseVAO = VAO;

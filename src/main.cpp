@@ -22,13 +22,9 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
 void drawBuildingBase(Shader buildingBaseShader, std::vector<Building*> &buildings);
-
 void drawBuildingRoof(Shader buildingRoofShader, std::vector<Building*> &buildings);
-
 void drawCobblestone(Shader cobblestoneShader, Cobblestone cobblestone, unsigned cobblestone_texture);
-
 void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture);
-
 void drawRoad(Shader roadShader, Road road, unsigned road_texture);
 
 // settings
@@ -104,6 +100,14 @@ int main() {
     Building::makeInnerBuildings(buildings);
     Building::makeWalls(buildings);
 
+    //unsigned buildingBase_texture = BuildingBase::getBuildingBaseTexture();
+    buildingBaseShader.use();
+    buildingBaseShader.setInt("texture4", 3);
+
+    //unsigned buildingRoof_texture = BuildingRoof::getBuildingRoofTexture();
+    buildingRoofShader.use();
+    buildingRoofShader.setInt("texture5", 4);
+
     Cobblestone cobblestone;
     unsigned cobblestone_texture = Cobblestone::getCobblestoneTexture();
     cobblestoneShader.use();
@@ -143,8 +147,8 @@ int main() {
         drawBuildingRoof(buildingRoofShader, buildings);
 
         drawCobblestone(cobblestoneShader, cobblestone, cobblestone_texture);
-        drawGrass(grassShader, grass, grass_texture);
-        drawRoad(roadShader, road, road_texture);
+        //drawGrass(grassShader, grass, grass_texture);
+        //drawRoad(roadShader, road, road_texture);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -165,6 +169,7 @@ int main() {
 
 void drawBuildingBase(Shader buildingBaseShader, std::vector<Building*> &buildings) {
     buildingBaseShader.use();
+
     // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
     // -----------------------------------------------------------------------------------------------------------
     glm::mat4 buildingBaseProjection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -177,10 +182,12 @@ void drawBuildingBase(Shader buildingBaseShader, std::vector<Building*> &buildin
     // render boxes
     glBindVertexArray(BuildingBase::getBuildingBaseVAO());
     int buildingBaseLength = buildings.size();
-    //std::cout << BuildingBase::getBuildingBaseVAO() << "--" << std::endl;
 
     for (int i = 0; i < buildingBaseLength; i++)
     {
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, buildings[i]->getBase()->getBuildingBaseTexture());
+
         // calculate the model matrix for each object and pass it to shader before drawing
         glm::mat4 buildingBaseModel = glm::mat4(1.0f);
 
@@ -188,14 +195,16 @@ void drawBuildingBase(Shader buildingBaseShader, std::vector<Building*> &buildin
 
         buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(buildings[i]->getRotateAngle()), glm::vec3(0.0f, 1.0f, 0.0f));
 
-        buildingBaseModel = glm::translate(buildingBaseModel, buildings[i]->getPosition() + glm::vec3(0.0, 0.5, 0.0));
+        float buildingBaseHeight = buildings[i]->getBase()->getBuildingBaseHeight();
 
-        buildingBaseModel = glm::scale(buildingBaseModel, glm::vec3(1.0, 1.0, 1.0));
+        buildingBaseModel = glm::translate(buildingBaseModel, buildings[i]->getPosition() + glm::vec3(0.0, buildingBaseHeight/2.0, 0.0));
+
+        buildingBaseModel = glm::scale(buildingBaseModel, glm::vec3(1.0, buildingBaseHeight, 1.0));
 
         buildingBaseShader.setMat4("buildingBaseModel", buildingBaseModel);
 
         //set building color
-        buildingBaseShader.setVec3("buildingBaseColor", glm::vec3((i+1.0)/buildingBaseLength, (i+1.0)/buildingBaseLength, (i+1.0)/buildingBaseLength));
+        //buildingBaseShader.setVec3("buildingBaseColor", glm::vec3((i+1.0)/buildingBaseLength, (i+1.0)/buildingBaseLength, (i+1.0)/buildingBaseLength));
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
     }
@@ -203,6 +212,7 @@ void drawBuildingBase(Shader buildingBaseShader, std::vector<Building*> &buildin
 
 void drawBuildingRoof(Shader buildingRoofShader, std::vector<Building*> &buildings) {
     buildingRoofShader.use();
+
     // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
     // -----------------------------------------------------------------------------------------------------------
     glm::mat4 buildingRoofProjection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -217,26 +227,36 @@ void drawBuildingRoof(Shader buildingRoofShader, std::vector<Building*> &buildin
     int buildingRoofLength = buildings.size();
 
     for (int i = 0; i < buildingRoofLength; i++) {
-        // calculate the model matrix for each object and pass it to shader before drawing
-        glm::mat4 buildingRoofModel = glm::mat4(1.0f);
+        if(buildings[i]->getIsWall() == false) {
+            glActiveTexture(GL_TEXTURE4);
+            glBindTexture(GL_TEXTURE_2D, buildings[i]->getRoof()->getBuildingRoofTexture());
 
-        buildingRoofModel = glm::translate(buildingRoofModel, buildings[i]->getAdditionalTranslate());
+            // calculate the model matrix for each object and pass it to shader before drawing
+            glm::mat4 buildingRoofModel = glm::mat4(1.0f);
 
-        buildingRoofModel = glm::rotate(buildingRoofModel, glm::radians(buildings[i]->getRotateAngle()),
-                                        glm::vec3(0.0f, 10.0f, 0.0f));
+            buildingRoofModel = glm::translate(buildingRoofModel, buildings[i]->getAdditionalTranslate());
 
-        buildingRoofModel = glm::translate(buildingRoofModel, buildings[i]->getPosition() + glm::vec3(0.0, 1.0, 0.0));
+            buildingRoofModel = glm::rotate(buildingRoofModel, glm::radians(buildings[i]->getRotateAngle()),
+                                            glm::vec3(0.0f, 10.0f, 0.0f));
 
-        buildingRoofModel = glm::scale(buildingRoofModel, glm::vec3(1.0, 1.0/4.0, 1.0));
+            std::cout << buildings[i]->getRoof()->getBuildingRoofHeight() << std::endl;
+            std::cout << buildings[i]->getBase()->getBuildingBaseHeight() << std::endl << std::endl;
 
-        buildingRoofShader.setMat4("buildingRoofModel", buildingRoofModel);
+            float buildingRoofHeight = buildings[i]->getRoof()->getBuildingRoofHeight();
+            float buildingBaseHeight = buildings[i]->getBase()->getBuildingBaseHeight();
 
-        //set building color
-        buildingRoofShader.setVec3("buildingRoofColor",
-                                   glm::vec3((i + 1.0) / buildingRoofLength, (i + 1.0) / buildingRoofLength,
-                                             (i + 1.0) / buildingRoofLength));
+            buildingRoofModel = glm::translate(buildingRoofModel,
+                                               buildings[i]->getPosition() + glm::vec3(0.0, buildingBaseHeight, 0.0));
 
-        glDrawArrays(GL_TRIANGLES, 0, 24);
+            buildingRoofModel = glm::scale(buildingRoofModel, glm::vec3(1.0, buildingRoofHeight, 1.0));
+
+            buildingRoofShader.setMat4("buildingRoofModel", buildingRoofModel);
+
+            //set building color
+            //buildingRoofShader.setVec3("buildingRoofColor",glm::vec3((i + 1.0) / buildingRoofLength, (i + 1.0) / buildingRoofLength,(i + 1.0) / buildingRoofLength));
+
+            glDrawArrays(GL_TRIANGLES, 0, 24);
+        }
     }
 }
 
@@ -378,7 +398,7 @@ void processInput(GLFWwindow *window)
     }
 
     //prevent movement through buildings
-    float buildingHeight = 2.0;
+    float buildingHeight = 2.0 + 0.11;
     if(cameraPos.y <= buildingHeight) {
         std::vector<std::pair<float, float>> buildingCenterPosition = Building::getBuildingCenterPosition();
         for (int i = 0; i < buildingCenterPosition.size(); i++) {

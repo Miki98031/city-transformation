@@ -15,7 +15,7 @@
 
 class BuildingRoof {
 private:
-    const static int numberOfVertices = 72;
+    const static int numberOfVertices = 120;
     static float vertices[numberOfVertices];
     static int counterVertices;
 
@@ -38,6 +38,9 @@ public:
         this->additionalTranslate = additionalTranslate;
     }
 
+    virtual float getBuildingRoofHeight() = 0;
+    virtual unsigned getBuildingRoofTexture() = 0;
+
     static unsigned getBuildingRoofVAO() {
         if (counterVAO++ == 0) {
             unsigned int VBO, VAO;
@@ -49,8 +52,11 @@ public:
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
             glEnableVertexAttribArray(0);
+
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3*sizeof(float)));
+            glEnableVertexAttribArray(1);
 
             buildingRoofVBO = VBO;
             buildingRoofVAO = VAO;

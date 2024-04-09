@@ -21,6 +21,13 @@
 
 #include "BuildingBase.h"
 #include "BuildingRoof.h"
+#include "SmallBuildingBase.h"
+#include "MediumBuildingBase.h"
+#include "LargeBuildingBase.h"
+#include "Wall.h"
+#include "SmallBuildingRoof.h"
+#include "MediumBuildingRoof.h"
+#include "LargeBuildingRoof.h"
 
 class Building {
 private:
@@ -37,16 +44,98 @@ private:
     BuildingRoof* roof;
 
 private:
+    bool isWall;
+
+private:
     static std::vector<std::pair<float, float>> buildingCenterPosition;
 
 public:
-    Building(glm::vec3 position, float rotateAngle, glm::vec3 additionalTranslate) {
+    Building(glm::vec3 position, float rotateAngle, glm::vec3 additionalTranslate, bool isWall) {
         this->position = glm::vec3(position.x, position.y, position.z);
         this->rotateAngle = rotateAngle;
         this->additionalTranslate = additionalTranslate;
+        this->isWall = isWall;
 
-        base = new BuildingBase(position, rotateAngle, additionalTranslate);
-        roof = new BuildingRoof(position, rotateAngle, additionalTranslate);
+        if(isWall == false) {
+
+            setBuildingBase(position, rotateAngle, additionalTranslate);
+            setBuildingRoof(position, rotateAngle, additionalTranslate);
+        }
+
+        else {
+            this->base = new Wall(position, rotateAngle, additionalTranslate);
+            //this->roof = new BuildingRoof(position, rotateAngle, additionalTranslate, 0.5, "resources/textures/cobblestone9.jpg");
+        }
+    }
+
+    bool getIsWall() const {
+        return isWall;
+    }
+
+    BuildingBase *getBase() const {
+        return base;
+    }
+
+    BuildingRoof *getRoof() const {
+        return roof;
+    }
+
+    void setBuildingBase(glm::vec3 position, float rotateAngle, glm::vec3 additionalTranslate) {
+        int numberOfCombinations = 3;
+        int buildingBaseNum = rand() % numberOfCombinations;
+
+        float buildingBaseHeight;
+        std::string buildingBaseTexturePath;
+
+        switch (buildingBaseNum) {
+            case 0: {
+                this->base = new SmallBuildingBase(position, rotateAngle, additionalTranslate);
+                break;
+            }
+
+            case 1: {
+                this->base = new MediumBuildingBase(position, rotateAngle, additionalTranslate);
+                break;
+            }
+
+            case 2: {
+                this->base = new LargeBuildingBase(position, rotateAngle, additionalTranslate);
+                break;
+            }
+
+            default: {
+                std::cout << "Error number for generating subclasses" << std::endl;
+            }
+        }
+    }
+
+    void setBuildingRoof(glm::vec3 position, float rotateAngle, glm::vec3 additionalTranslate) {
+        int numberOfCombinations = 3;
+        int buildingRoofNum = rand() % numberOfCombinations;
+
+        float buildingRoofHeight;
+        std::string buildingRoofTexturePath;
+
+        switch (buildingRoofNum) {
+            case 0: {
+                this->roof = new SmallBuildingRoof(position, rotateAngle, additionalTranslate);
+                break;
+            }
+
+            case 1: {
+                this->roof = new MediumBuildingRoof(position, rotateAngle, additionalTranslate);
+                break;
+            }
+
+            case 2: {
+                this->roof = new LargeBuildingRoof(position, rotateAngle, additionalTranslate);
+                break;
+            }
+
+            default: {
+                std::cout << "Error number for generating subclasses" << std::endl;
+            }
+        }
     }
 
     const glm::vec3 &getPosition() const {
@@ -172,7 +261,7 @@ public:
                 }
 
                 iss >> position.x >> position.y >> position.z;
-                buildings.push_back(new Building(position, rotateAngle, additionalTranslate));
+                buildings.push_back(new Building(position, rotateAngle, additionalTranslate, false));
 
                 glm::mat3 yRotMat = {
                         cos((glm::radians(rotateAngle))),  0.0, sin(glm::radians(rotateAngle)),
@@ -181,10 +270,6 @@ public:
                 };
                 glm::vec3 position_after_rotation = position * yRotMat;
                 glm::vec3 position_after_additional_translation = position_after_rotation + additionalTranslate;
-
-                //std::cout << position.x << " " << position.y << " " << position.z << std::endl;
-                //std::cout << position_after_rotation.x << " " << position_after_rotation.y << " " << position_after_rotation.z << std::endl;
-                //std::cout << position_after_additional_translation.x << " " << position_after_additional_translation.y << " " << position_after_additional_translation.z << std::endl << std::endl;
 
                 setBuildingCenterPosition(position_after_additional_translation.x, position_after_additional_translation.z);
             }
@@ -251,7 +336,7 @@ public:
                 }
 
                 iss >> position.x >> position.y >> position.z;
-                buildings.push_back(new Building(position, rotateAngle, additionalTranslate));
+                buildings.push_back(new Building(position, rotateAngle, additionalTranslate, true));
 
                 setBuildingCenterPosition(position.x, position.z);
             }

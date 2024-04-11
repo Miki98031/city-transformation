@@ -126,6 +126,11 @@ public:
 
         return cobblestoneTexture;
     }
+
+    static void freeBuffers() {
+        glDeleteVertexArrays(1, &cobblestoneVAO);
+        glDeleteBuffers(1, &cobblestoneVBO);
+    }
 };
 
 

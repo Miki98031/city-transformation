@@ -35,7 +35,7 @@ private:
     void loadModel(std::string path) {
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate |
-        aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+                                                       aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
             ASSERT(false, "Failed to load a model!");
@@ -66,7 +66,7 @@ private:
             vertex.Position.x = mesh->mVertices[i].x;
             vertex.Position.y = mesh->mVertices[i].y;
             vertex.Position.z = mesh->mVertices[i].z;
-            
+
             if (mesh->HasNormals()) {
                 vertex.Normal.x = mesh->mNormals[i].x;
                 vertex.Normal.y = mesh->mNormals[i].y;
@@ -80,7 +80,7 @@ private:
                 vertex.Tangent.x = mesh->mTangents[i].x;
                 vertex.Tangent.y = mesh->mTangents[i].y;
                 vertex.Tangent.z = mesh->mTangents[i].z;
-                
+
                 vertex.Bitangent.x = mesh->mBitangents[i].x;
                 vertex.Bitangent.y = mesh->mBitangents[i].y;
                 vertex.Bitangent.z = mesh->mBitangents[i].z;
@@ -105,19 +105,19 @@ private:
         loadTextureMaterial(material, aiTextureType_DIFFUSE, "texture_diffuse", textures);
 
         loadTextureMaterial(material, aiTextureType_SPECULAR, "texture_specular",
-                                                                textures);
+                            textures);
 
         loadTextureMaterial(material, aiTextureType_NORMALS, "texture_normal", textures);
 
         loadTextureMaterial(material, aiTextureType_HEIGHT, "texture_height",
-                                                              textures);
+                            textures);
 
 
         return Mesh(vertices, indices, textures);
     }
 
     void loadTextureMaterial(aiMaterial* mat, aiTextureType type, std::string typeName,
-                                             std::vector<Texture> & textures) {
+                             std::vector<Texture> & textures) {
 
         for (unsigned int i = 0; i < mat->GetTextureCount(type); ++i) {
             aiString str;

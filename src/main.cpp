@@ -1,31 +1,18 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include <iostream>
-
-#include <learnopengl/filesystem.h>
 #include <learnopengl/shader.h>
-#include <GL/gl.h>
 #include <vector>
-#include "../resources/buildings/Building.h"
-#include "../resources/terrains/Cobblestone.h"
-#include "../resources/terrains/Grass.h"
-#include "../resources/terrains/Road.h"
+#include "learnopengl/model.h"
+#include "drawing.h"
+#include "../resources/buildings/Door.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
-
-void drawBuildingBase(Shader buildingBaseShader, std::vector<Building*> &buildings);
-void drawBuildingRoof(Shader buildingRoofShader, std::vector<Building*> &buildings);
-void drawCobblestone(Shader cobblestoneShader, Cobblestone cobblestone, unsigned cobblestone_texture);
-void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture);
-void drawRoad(Shader roadShader, Road road, unsigned road_texture);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod);
 
 // settings
 const unsigned int SCR_WIDTH = 1366;
@@ -47,9 +34,11 @@ float fov   =  45.0f;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
+//door
+Door door;
+
 int main() {
     // glfw: initialize and configure
-    // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -60,7 +49,6 @@ int main() {
     #endif
 
     // glfw window creation
-    // --------------------
     GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -72,23 +60,21 @@ int main() {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetKeyCallback(window, key_callback);
 
     // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // glad: load all OpenGL function pointers
-    // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
     // configure global opengl state
-    // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
     // build and compile shaders
-    // -------------------------
     Shader buildingRoofShader("resources/shaders/buildingRoof.vs", "resources/shaders/buildingRoof.fs");
     Shader buildingBaseShader("resources/shaders/buildingBase.vs", "resources/shaders/buildingBase.fs");
 
@@ -96,15 +82,31 @@ int main() {
     Shader grassShader("resources/shaders/grass.vs", "resources/shaders/grass.fs");
     Shader roadShader("resources/shaders/road.vs", "resources/shaders/road.fs");
 
+    stbi_set_flip_vertically_on_load(true);
+    //Shader backpackShader("resources/shaders/backpack.vs", "resources/shaders/backpack.fs");
+    //Model backpack("resources/objects/backpack/backpack.obj");
+
+    //Shader fountainShader("resources/shaders/fountain.vs", "resources/shaders/fountain.fs");
+    //Model fountain("resources/objects/fountain/fountain.obj");
+
+    Shader churchShader("resources/shaders/church.vs", "resources/shaders/church.fs");
+    Model church("resources/objects/church/church.obj");
+
+    Shader tavernShader("resources/shaders/tavern.vs", "resources/shaders/tavern.fs");
+    Model tavern("resources/objects/tavern/tavern.obj");
+
+    Shader leftDoorShader("resources/shaders/leftDoor.vs", "resources/shaders/leftDoor.fs");
+    Model leftDoor("resources/objects/leftDoor/left-door.obj");
+
+    Shader rightDoorShader("resources/shaders/rightDoor.vs", "resources/shaders/rightDoor.fs");
+    Model rightDoor("resources/objects/rightDoor/right-door.obj");
+    stbi_set_flip_vertically_on_load(false);
+
     std::vector<Building*> buildings;
     Building::makeInnerBuildings(buildings);
     Building::makeWalls(buildings);
-
-    //unsigned buildingBase_texture = BuildingBase::getBuildingBaseTexture();
     buildingBaseShader.use();
     buildingBaseShader.setInt("texture4", 3);
-
-    //unsigned buildingRoof_texture = BuildingRoof::getBuildingRoofTexture();
     buildingRoofShader.use();
     buildingRoofShader.setInt("texture5", 4);
 
@@ -126,255 +128,52 @@ int main() {
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // render loop
-    // -----------
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
-        // --------------------
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
         // input
-        // -----
         processInput(window);
 
         // render
-        // ------
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        drawBuildingBase(buildingBaseShader, buildings);
-        drawBuildingRoof(buildingRoofShader, buildings);
+        drawBuildingBase(buildingBaseShader, buildings, fov, cameraPos, cameraFront, cameraUp);
+        drawBuildingRoof(buildingRoofShader, buildings, fov, cameraPos, cameraFront, cameraUp);
 
-        drawCobblestone(cobblestoneShader, cobblestone, cobblestone_texture);
-        //drawGrass(grassShader, grass, grass_texture);
-        //drawRoad(roadShader, road, road_texture);
+        drawCobblestone(cobblestoneShader, cobblestone, cobblestone_texture, fov, cameraPos, cameraFront, cameraUp);
+        drawGrass(grassShader, grass, grass_texture, fov, cameraPos, cameraFront, cameraUp);
+        drawRoad(roadShader, road, road_texture, fov, cameraPos, cameraFront, cameraUp);
+
+        //drawBackpack(backpackShader, backpack, fov, cameraPos, cameraFront, cameraUp);
+        //drawFountain(fountainShader, fountain, fov, cameraPos, cameraFront, cameraUp);
+        drawChurch(churchShader, church, fov, cameraPos, cameraFront, cameraUp);
+        //drawTavern(tavernShader, tavern, fov, cameraPos, cameraFront, cameraUp);
+
+        drawDoor(leftDoorShader, leftDoor, rightDoorShader, rightDoor, fov, cameraPos, cameraFront, cameraUp, door);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
     // optional: de-allocate all resources once they've outlived their purpose:
-    // ------------------------------------------------------------------------
-    //glDeleteVertexArrays(1, &VAO);
-    //glDeleteBuffers(1, &VBO);
+    BuildingBase::freeBuffers();
+    BuildingRoof::freeBuffers();
+    Cobblestone::freeBuffers();
+    Grass::freeBuffers();
+    Road::freeBuffers();
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
-    // ------------------------------------------------------------------
     glfwTerminate();
     return 0;
 }
 
-void drawBuildingBase(Shader buildingBaseShader, std::vector<Building*> &buildings) {
-    buildingBaseShader.use();
-
-    // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
-    // -----------------------------------------------------------------------------------------------------------
-    glm::mat4 buildingBaseProjection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-    buildingBaseShader.setMat4("buildingBaseProjection", buildingBaseProjection);
-
-    // camera/view transformation
-    glm::mat4 buildingBaseView = glm::lookAt(cameraPos,  cameraPos + cameraFront, cameraUp);
-    buildingBaseShader.setMat4("buildingBaseView", buildingBaseView);
-
-    // render boxes
-    glBindVertexArray(BuildingBase::getBuildingBaseVAO());
-    int buildingBaseLength = buildings.size();
-
-    for (int i = 0; i < buildingBaseLength; i++)
-    {
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, buildings[i]->getBase()->getBuildingBaseTexture());
-
-        // calculate the model matrix for each object and pass it to shader before drawing
-        glm::mat4 buildingBaseModel = glm::mat4(1.0f);
-
-        buildingBaseModel = glm::translate(buildingBaseModel, buildings[i]->getAdditionalTranslate());
-
-        buildingBaseModel = glm::rotate(buildingBaseModel, glm::radians(buildings[i]->getRotateAngle()), glm::vec3(0.0f, 1.0f, 0.0f));
-
-        float buildingBaseHeight = buildings[i]->getBase()->getBuildingBaseHeight();
-
-        buildingBaseModel = glm::translate(buildingBaseModel, buildings[i]->getPosition() + glm::vec3(0.0, buildingBaseHeight/2.0, 0.0));
-
-        buildingBaseModel = glm::scale(buildingBaseModel, glm::vec3(1.0, buildingBaseHeight, 1.0));
-
-        buildingBaseShader.setMat4("buildingBaseModel", buildingBaseModel);
-
-        //set building color
-        //buildingBaseShader.setVec3("buildingBaseColor", glm::vec3((i+1.0)/buildingBaseLength, (i+1.0)/buildingBaseLength, (i+1.0)/buildingBaseLength));
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
-}
-
-void drawBuildingRoof(Shader buildingRoofShader, std::vector<Building*> &buildings) {
-    buildingRoofShader.use();
-
-    // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
-    // -----------------------------------------------------------------------------------------------------------
-    glm::mat4 buildingRoofProjection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-    buildingRoofShader.setMat4("buildingRoofProjection", buildingRoofProjection);
-
-    // camera/view transformation
-    glm::mat4 buildingRoofView = glm::lookAt(cameraPos,  cameraPos + cameraFront, cameraUp);
-    buildingRoofShader.setMat4("buildingRoofView", buildingRoofView);
-
-    // render boxes
-    glBindVertexArray(BuildingRoof::getBuildingRoofVAO());
-    int buildingRoofLength = buildings.size();
-
-    for (int i = 0; i < buildingRoofLength; i++) {
-        if(buildings[i]->getIsWall() == false) {
-            glActiveTexture(GL_TEXTURE4);
-            glBindTexture(GL_TEXTURE_2D, buildings[i]->getRoof()->getBuildingRoofTexture());
-
-            // calculate the model matrix for each object and pass it to shader before drawing
-            glm::mat4 buildingRoofModel = glm::mat4(1.0f);
-
-            buildingRoofModel = glm::translate(buildingRoofModel, buildings[i]->getAdditionalTranslate());
-
-            buildingRoofModel = glm::rotate(buildingRoofModel, glm::radians(buildings[i]->getRotateAngle()),
-                                            glm::vec3(0.0f, 10.0f, 0.0f));
-
-            std::cout << buildings[i]->getRoof()->getBuildingRoofHeight() << std::endl;
-            std::cout << buildings[i]->getBase()->getBuildingBaseHeight() << std::endl << std::endl;
-
-            float buildingRoofHeight = buildings[i]->getRoof()->getBuildingRoofHeight();
-            float buildingBaseHeight = buildings[i]->getBase()->getBuildingBaseHeight();
-
-            buildingRoofModel = glm::translate(buildingRoofModel,
-                                               buildings[i]->getPosition() + glm::vec3(0.0, buildingBaseHeight, 0.0));
-
-            buildingRoofModel = glm::scale(buildingRoofModel, glm::vec3(1.0, buildingRoofHeight, 1.0));
-
-            buildingRoofShader.setMat4("buildingRoofModel", buildingRoofModel);
-
-            //set building color
-            //buildingRoofShader.setVec3("buildingRoofColor",glm::vec3((i + 1.0) / buildingRoofLength, (i + 1.0) / buildingRoofLength,(i + 1.0) / buildingRoofLength));
-
-            glDrawArrays(GL_TRIANGLES, 0, 24);
-        }
-    }
-}
-
-void drawCobblestone(Shader cobblestoneShader, Cobblestone cobblestone, unsigned cobblestone_texture) {
-    //bind Texture
-    cobblestoneShader.use();
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, cobblestone_texture);
-
-    //cobblestoneShader.setMat2("rotMat", rotMat);
-
-    // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
-    // -----------------------------------------------------------------------------------------------------------
-    glm::mat4 cobblestoneProjection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-    cobblestoneShader.setMat4("cobblestoneProjection", cobblestoneProjection);
-
-    // camera/view transformation
-    glm::mat4 cobblestoneView = glm::lookAt(cameraPos,  cameraPos + cameraFront, cameraUp);
-    cobblestoneShader.setMat4("cobblestoneView", cobblestoneView);
-
-    // render boxes
-    glBindVertexArray(Cobblestone::getCobblestoneVAO());
-
-    // calculate the model matrix for each object and pass it to shader before drawing
-    glm::mat4 cobblestoneModel = glm::mat4(1.0f);
-
-    //cobblestoneModel = glm::translate(cobblestoneModel, buildings[i]->getAdditionalTranslate());
-
-    //cobblestoneModel = glm::rotate(cobblestoneModel, glm::radians(buildings[i]->getRotateAngle()), glm::vec3(0.0f, 10.0f, 0.0f));
-
-    cobblestoneModel = glm::translate(cobblestoneModel, glm::vec3(-3.5, 0.0, -24.5));
-
-    cobblestoneModel = glm::scale(cobblestoneModel, glm::vec3(1.0, 1.0, 1.0));
-
-    cobblestoneShader.setMat4("cobblestoneModel", cobblestoneModel);
-
-    //set building color
-    //cobblestoneShader.setVec3("cobblestoneColor", 0.0, 1.0, 0.0);
-
-    glDrawArrays(GL_TRIANGLES, 0, 1950);
-}
-
-void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture) {
-    //bind Texture
-    grassShader.use();
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, grass_texture);
-
-    // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
-    // -----------------------------------------------------------------------------------------------------------
-    glm::mat4 grassProjection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-    grassShader.setMat4("grassProjection", grassProjection);
-
-    // camera/view transformation
-    glm::mat4 grassView = glm::lookAt(cameraPos,  cameraPos + cameraFront, cameraUp);
-    grassShader.setMat4("grassView", grassView);
-
-    // render boxes
-    glBindVertexArray(Grass::getGrassVAO());
-
-    // calculate the model matrix for each object and pass it to shader before drawing
-    glm::mat4 grassModel = glm::mat4(1.0f);
-
-    //grassModel = glm::translate(grassModel, buildings[i]->getAdditionalTranslate());
-
-    //grassModel = glm::rotate(grassModel, glm::radians(buildings[i]->getRotateAngle()), glm::vec3(0.0f, 10.0f, 0.0f));
-
-    grassModel = glm::translate(grassModel, glm::vec3(-50.5, 0.0, -50.0));
-
-    grassModel = glm::scale(grassModel, glm::vec3(1.0, 1.0, 1.0));
-
-    grassShader.setMat4("grassModel", grassModel);
-
-    //set building color
-    //grassShader.setVec3("grassColor", 0.0, 1.0, 0.0);
-
-    glDrawArrays(GL_TRIANGLES, 0, 60000);
-}
-
-void drawRoad(Shader roadShader, Road road, unsigned road_texture) {
-    //bind Texture
-    roadShader.use();
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, road_texture);
-
-    // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
-    // -----------------------------------------------------------------------------------------------------------
-    glm::mat4 roadProjection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-    roadShader.setMat4("roadProjection", roadProjection);
-
-    // camera/view transformation
-    glm::mat4 roadView = glm::lookAt(cameraPos,  cameraPos + cameraFront, cameraUp);
-    roadShader.setMat4("roadView", roadView);
-
-    // render boxes
-    glBindVertexArray(Road::getRoadVAO());
-
-    // calculate the model matrix for each object and pass it to shader before drawing
-    glm::mat4 roadModel = glm::mat4(1.0f);
-
-    //roadModel = glm::translate(roadModel, buildings[i]->getAdditionalTranslate());
-
-    //roadModel = glm::rotate(roadModel, glm::radians(buildings[i]->getRotateAngle()), glm::vec3(0.0f, 10.0f, 0.0f));
-
-    roadModel = glm::translate(roadModel, glm::vec3(9.5, 0.0, -12.5));
-
-    roadModel = glm::scale(roadModel, glm::vec3(1.0, 1.0, 1.0));
-
-    roadShader.setMat4("roadModel", roadModel);
-
-    //set building color
-    //roadShader.setVec3("roadColor", 0.0, 1.0, 0.0);
-
-    glDrawArrays(GL_TRIANGLES, 0, 240);
-}
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -413,10 +212,31 @@ void processInput(GLFWwindow *window)
             }
         }
     }
+
+    //prevent movement through doors
+    if (cameraPos.y < 2.11) {
+        float a = 0.31;
+        float b = 0.21;
+
+        glm::vec3 leftDoorPosition = door.getLeftDoorPosition();
+        float x1 = leftDoorPosition.x;
+        float z1 = leftDoorPosition.z;
+        float expression1 = (cameraPos.x - x1) * (cameraPos.x - x1) / (a*a) + (cameraPos.z - z1) * (cameraPos.z - z1) / (b*b);
+
+        glm::vec3 rightDoorPosition = door.getRightDoorPosition();
+        float x2 = rightDoorPosition.x;
+        float z2 = rightDoorPosition.z;
+        float expression2 = (cameraPos.x - x2) * (cameraPos.x - x2) / (a*a) + (cameraPos.z - z2) * (cameraPos.z - z2) / (b*b);
+
+        if (expression1 <= 1.5 || expression2 <= 1.5) {
+            cameraPos.x = cameraPosPrev.x;
+            cameraPos.z = cameraPosPrev.z;
+            cameraPos.y = cameraPosPrev.y;
+        }
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
@@ -424,7 +244,6 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 }
 
 // glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     if (firstMouse)
@@ -460,7 +279,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     fov -= (float)yoffset;
@@ -468,4 +286,21 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
         fov = 1.0f;
     if (fov > 45.0f)
         fov = 45.0f;
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod) {
+    if (key == GLFW_KEY_O && action == GLFW_PRESS) {
+        if(door.isDoorClosed()) {
+            std::cout << "Door opening" << std::endl;
+            door.setDoorOpening(true);
+            door.setDoorClosed(false);
+        }
+    }
+    if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+        if(door.isDoorOpened()) {
+            std::cout << "Door closing" << std::endl;
+            door.setDoorClosing(true);
+            door.setDoorOpened(false);
+        }
+    }
 }

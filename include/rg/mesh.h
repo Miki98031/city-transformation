@@ -9,6 +9,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <rg/Error.h>
+#include "learnopengl/shader.h"
+
 struct Vertex {
     glm::vec3 Position;
     glm::vec3 Normal;
@@ -32,9 +34,9 @@ public:
 
     Mesh(const std::vector<Vertex>& vs, const std::vector<unsigned int>& ind,
          const std::vector<Texture>& tex)
-         : vertices(vs)
-         , indices(ind)
-         , textures(tex) {
+            : vertices(vs)
+            , indices(ind)
+            , textures(tex) {
         setupMesh();
     }
 
@@ -78,7 +80,7 @@ private:
         unsigned int VBO;
         unsigned int EBO;
 
-        glGenVertexArray(1, &VAO);
+        glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
         glGenBuffers(1, &EBO);
 

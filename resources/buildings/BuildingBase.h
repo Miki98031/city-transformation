@@ -79,6 +79,11 @@ public:
             vertices[i++] = z;
         }
     }
+
+    static void freeBuffers() {
+        glDeleteVertexArrays(1, &buildingBaseVAO);
+        glDeleteBuffers(1, &buildingBaseVBO);
+    }
 };
 
 

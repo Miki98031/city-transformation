@@ -123,6 +123,11 @@ public:
 
         return grassTexture;
     }
+
+    static void freeBuffers() {
+        glDeleteVertexArrays(1, &grassVAO);
+        glDeleteBuffers(1, &grassVBO);
+    }
 };
 
 

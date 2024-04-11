@@ -126,6 +126,11 @@ public:
 
         return roadTexture;
     }
+
+    static void freeBuffers() {
+        glDeleteVertexArrays(1, &roadVAO);
+        glDeleteBuffers(1, &roadVBO);
+    }
 };
 
 

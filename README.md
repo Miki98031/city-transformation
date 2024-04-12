@@ -1,10 +1,10 @@
-## City transformation
+# City transformation
 Project from computer graphics using OpenGL
 
-# Link to video
+## Link to video
 
 
-# Controls
+## Controls
 - **WASD** - camera movement
 
 - **MOUSE SCROLL** - zoom in/zoom out
@@ -16,7 +16,7 @@ Project from computer graphics using OpenGL
 - **ESC** - close app
 
 
-# Resources
+## Resources
 - Good part of a code is from LearnOpenGL repository and classes.
 - Textures are from https://www.sketchuptextureclub.com/
 - Models are from https://sketchfab.com/feed and https://www.cgtrader.com/free-3d-models

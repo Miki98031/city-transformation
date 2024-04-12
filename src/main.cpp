@@ -77,6 +77,10 @@ int main() {
     // configure global opengl state
     glEnable(GL_DEPTH_TEST);
 
+    //configure face culling
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
     // build and compile shaders
     Shader buildingRoofShader("resources/shaders/buildingRoof.vs", "resources/shaders/buildingRoof.fs");
     Shader buildingBaseShader("resources/shaders/buildingBase.vs", "resources/shaders/buildingBase.fs");

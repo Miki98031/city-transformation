@@ -4,7 +4,7 @@
 
 #include "Road.h"
 std::string Road::roadTexturePath = "resources/textures/road.jpg";
-std::string Road::roadTextureSpecularPath = "resources/textures/73_street_paving_rounded_cobblestone_texture-seamless-hr_specular.jpg";
+std::string Road::roadTextureSpecularPath = "resources/textures/road_spec.jpg";
 float Road::vertices[Road::count] = {0}; // Initialize static member variable
 int Road::counterVertices = 0;
 int Road::counterVAO = 0;

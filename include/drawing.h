@@ -12,6 +12,8 @@
 #include "../resources/terrains/Grass.h"
 #include "../resources/terrains/Road.h"
 #include "../resources/buildings/Door.h"
+#include "../resources/lights/pointLight/PointLight.h"
+#include "../resources/lights/pointLight/TestCube.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -234,7 +236,7 @@ void drawBuildingBase(Shader buildingBaseShader, std::vector<Building*> &buildin
 
     for (int i = 0; i < buildingBaseLength; i++)
     {
-        glActiveTexture(GL_TEXTURE3);
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, buildings[i]->getBase()->getBuildingBaseTexture());
         float buildingBaseHeight = buildings[i]->getBase()->getBuildingBaseHeight();
 
@@ -265,7 +267,7 @@ void drawBuildingRoof(Shader buildingRoofShader, std::vector<Building*> &buildin
 
     for (int i = 0; i < buildingRoofLength; i++) {
         if(buildings[i]->getIsWall() == false) {
-            glActiveTexture(GL_TEXTURE4);
+            glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, buildings[i]->getRoof()->getBuildingRoofTexture());
             float buildingRoofHeight = buildings[i]->getRoof()->getBuildingRoofHeight();
             float buildingBaseHeight = buildings[i]->getBase()->getBuildingBaseHeight();
@@ -281,6 +283,29 @@ void drawBuildingRoof(Shader buildingRoofShader, std::vector<Building*> &buildin
             //draw building roof
             glDrawArrays(GL_TRIANGLES, 0, 24);
         }
+    }
+}
+
+void drawPointLight(Shader pointLightShader, std::vector<PointLight*> &pointLights, float fov, glm::vec3 &cameraPos, glm::vec3 &cameraFront, glm::vec3 &cameraUp) {
+    //set projection and view
+    pointLightShader.use();
+    glm::mat4 pointLightProjection = glm::perspective(glm::radians(fov), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+    pointLightShader.setMat4("pointLightProjection", pointLightProjection);
+    glm::mat4 pointLightView = glm::lookAt(cameraPos,  cameraPos + cameraFront, cameraUp);
+    pointLightShader.setMat4("pointLightView", pointLightView);
+
+    // calculate the model matrix for each object and pass it to shader before drawing
+    glm::mat4 pointLightModel = glm::mat4(1.0f);
+
+    // we now draw as many light bulbs as we have point lights.
+    glBindVertexArray(PointLight::getPointLightVAO());
+    for (unsigned int i = 0; i < pointLights.size(); i++)
+    {
+        pointLightModel = glm::mat4(1.0f);
+        pointLightModel = glm::translate(pointLightModel, pointLights[i]->getPosition());
+        pointLightModel = glm::scale(pointLightModel, glm::vec3(0.1)); // Make it a smaller cube
+        pointLightShader.setMat4("pointLightModel", pointLightModel);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 }
 
@@ -309,17 +334,39 @@ void drawCobblestone(Shader cobblestoneShader, Cobblestone cobblestone, unsigned
     glDrawArrays(GL_TRIANGLES, 0, 1950);
 }
 
-void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture, float fov, glm::vec3 &cameraPos, glm::vec3 &cameraFront, glm::vec3 &cameraUp) {
-    //bind Texture
-    grassShader.use();
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, grass_texture);
+void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture, unsigned grass_specular, std::vector<PointLight*> &pointLights, float fov, glm::vec3 &cameraPos, glm::vec3 &cameraFront, glm::vec3 &cameraUp) {
+    // set point lights properties
+    for (int i=0 ; i < pointLights.size() ; i++) {
+        std::string index = std::to_string(i);
+        grassShader.setVec3("pointLights[" + index + "].position", pointLights[i]->getPosition());
+        grassShader.setVec3("pointLights[" + index + "].ambient", pointLights[i]->ambient);
+        grassShader.setVec3("pointLights[" + index + "].diffuse", pointLights[i]->diffuse);
+        grassShader.setVec3("pointLights[" + index + "].specular", pointLights[i]->specular);
+        grassShader.setFloat("pointLights[" + index + "].constant", pointLights[i]->constant);
+        grassShader.setFloat("pointLights[" + index + "].linear", pointLights[i]->linear);
+        grassShader.setFloat("pointLights[" + index + "].quadratic", pointLights[i]->quadratic);
+    }
 
     //set projection and view
+    grassShader.use();
     glm::mat4 grassProjection = glm::perspective(glm::radians(fov), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
     grassShader.setMat4("grassProjection", grassProjection);
     glm::mat4 grassView = glm::lookAt(cameraPos,  cameraPos + cameraFront, cameraUp);
     grassShader.setMat4("grassView", grassView);
+
+    //set camera pos properties
+    grassShader.setVec3("viewPos", cameraPos);
+
+    //set material properties
+    grassShader.setFloat("material.shininess", 2.0f);
+
+    //bind Texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, grass_texture);
+
+    //bind specular
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, grass_specular);
 
     // render boxes
     glBindVertexArray(Grass::getGrassVAO());
@@ -334,17 +381,40 @@ void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture, float fo
     glDrawArrays(GL_TRIANGLES, 0, 60000);
 }
 
-void drawRoad(Shader roadShader, Road road, unsigned road_texture, float fov, glm::vec3 &cameraPos, glm::vec3 &cameraFront, glm::vec3 &cameraUp) {
-    //bind Texture
-    roadShader.use();
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, road_texture);
+void drawRoad(Shader roadShader, Road road, unsigned road_texture, unsigned road_specular, std::vector<PointLight*> &pointLights, float fov, glm::vec3 &cameraPos, glm::vec3 &cameraFront, glm::vec3 &cameraUp) {
+    // set point lights properties
+    for (int i=0 ; i < pointLights.size() ; i++) {
+        std::string index = std::to_string(i);
+        roadShader.setVec3("pointLights[" + index + "].position", pointLights[i]->getPosition());
+        roadShader.setVec3("pointLights[" + index + "].ambient", pointLights[i]->ambient);
+        roadShader.setVec3("pointLights[" + index + "].diffuse", pointLights[i]->diffuse);
+        roadShader.setVec3("pointLights[" + index + "].specular", pointLights[i]->specular);
+        roadShader.setFloat("pointLights[" + index + "].constant", pointLights[i]->constant);
+        roadShader.setFloat("pointLights[" + index + "].linear", pointLights[i]->linear);
+        roadShader.setFloat("pointLights[" + index + "].quadratic", pointLights[i]->quadratic);
+    }
 
     //set projection and view
+    roadShader.use();
     glm::mat4 roadProjection = glm::perspective(glm::radians(fov), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
     roadShader.setMat4("roadProjection", roadProjection);
     glm::mat4 roadView = glm::lookAt(cameraPos,  cameraPos + cameraFront, cameraUp);
     roadShader.setMat4("roadView", roadView);
+
+    //set camera pos properties
+    roadShader.setVec3("viewPos", cameraPos);
+
+    //set material properties
+    roadShader.setFloat("material.shininess", 64.0f);
+
+    //bind Texture
+    roadShader.use();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, road_texture);
+
+    //bind specular
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, road_specular);
 
     // render boxes
     glBindVertexArray(Road::getRoadVAO());

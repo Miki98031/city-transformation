@@ -1,0 +1,9 @@
+//
+// Created by mihailo on 12.4.24..
+//
+
+#ifndef PROJECT_BASE_COMMONOPERATIONS_H
+#define PROJECT_BASE_COMMONOPERATIONS_H
+
+
+#endif //PROJECT_BASE_COMMONOPERATIONS_H

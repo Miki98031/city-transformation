@@ -6,7 +6,10 @@
 #include <vector>
 #include "learnopengl/model.h"
 #include "drawing.h"
+#include "string"
 #include "../resources/buildings/Door.h"
+#include "../resources/lights/pointLight/PointLight.h"
+#include "../resources/lights/pointLight/TestCube.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -19,7 +22,7 @@ const unsigned int SCR_WIDTH = 1366;
 const unsigned int SCR_HEIGHT = 768;
 
 // camera
-glm::vec3 cameraPos   = glm::vec3( 12.0f,  0.11f, -12.0f);
+glm::vec3 cameraPos   = glm::vec3( 25.0f,  0.11f, -12.0f);
 glm::vec3 cameraFront = glm::vec3(-5.0f, 0.0f, 1.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
@@ -82,18 +85,11 @@ int main() {
     Shader grassShader("resources/shaders/grass.vs", "resources/shaders/grass.fs");
     Shader roadShader("resources/shaders/road.vs", "resources/shaders/road.fs");
 
+    Shader pointLightShader("resources/shaders/pointLight.vs", "resources/shaders/pointLight.fs");
+
     stbi_set_flip_vertically_on_load(true);
-    //Shader backpackShader("resources/shaders/backpack.vs", "resources/shaders/backpack.fs");
-    //Model backpack("resources/objects/backpack/backpack.obj");
-
-    //Shader fountainShader("resources/shaders/fountain.vs", "resources/shaders/fountain.fs");
-    //Model fountain("resources/objects/fountain/fountain.obj");
-
     Shader churchShader("resources/shaders/church.vs", "resources/shaders/church.fs");
     Model church("resources/objects/church/church.obj");
-
-    Shader tavernShader("resources/shaders/tavern.vs", "resources/shaders/tavern.fs");
-    Model tavern("resources/objects/tavern/tavern.obj");
 
     Shader leftDoorShader("resources/shaders/leftDoor.vs", "resources/shaders/leftDoor.fs");
     Model leftDoor("resources/objects/leftDoor/left-door.obj");
@@ -106,9 +102,9 @@ int main() {
     Building::makeInnerBuildings(buildings);
     Building::makeWalls(buildings);
     buildingBaseShader.use();
-    buildingBaseShader.setInt("texture4", 3);
+    buildingBaseShader.setInt("texture1", 0);
     buildingRoofShader.use();
-    buildingRoofShader.setInt("texture5", 4);
+    buildingRoofShader.setInt("texture1", 0);
 
     Cobblestone cobblestone;
     unsigned cobblestone_texture = Cobblestone::getCobblestoneTexture();
@@ -116,14 +112,21 @@ int main() {
     cobblestoneShader.setInt("texture1", 0);
 
     Grass grass;
-    unsigned grass_texture = Grass::getGrassTexture();
     grassShader.use();
-    grassShader.setInt("texture2", 1);
+    unsigned int grass_texture = Grass::getGrassTexture();
+    grassShader.setInt("material.diffuse", 0);
+    unsigned int grass_specular = Grass::getGrassTextureSpecular();
+    grassShader.setInt("material.specular", 1);
 
     Road road;
-    unsigned road_texture = Road::getRoadTexture();
     roadShader.use();
-    roadShader.setInt("texture3", 2);
+    unsigned int road_texture = Road::getRoadTexture();
+    roadShader.setInt("material.diffuse", 0);
+    unsigned int road_specular = Road::getRoadTextureSpecular();
+    roadShader.setInt("material.specular", 1);
+
+    std::vector<PointLight*> pointLights;
+    PointLight::makePointLights(pointLights);
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -138,22 +141,21 @@ int main() {
         processInput(window);
 
         // render
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        drawGrass(grassShader, grass, grass_texture, grass_specular, pointLights, fov, cameraPos, cameraFront, cameraUp);
+        drawRoad(roadShader, road, road_texture, road_specular, pointLights, fov, cameraPos, cameraFront, cameraUp);
+        drawCobblestone(cobblestoneShader, cobblestone, cobblestone_texture, fov, cameraPos, cameraFront, cameraUp);
 
         drawBuildingBase(buildingBaseShader, buildings, fov, cameraPos, cameraFront, cameraUp);
         drawBuildingRoof(buildingRoofShader, buildings, fov, cameraPos, cameraFront, cameraUp);
 
-        drawCobblestone(cobblestoneShader, cobblestone, cobblestone_texture, fov, cameraPos, cameraFront, cameraUp);
-        drawGrass(grassShader, grass, grass_texture, fov, cameraPos, cameraFront, cameraUp);
-        drawRoad(roadShader, road, road_texture, fov, cameraPos, cameraFront, cameraUp);
-
-        //drawBackpack(backpackShader, backpack, fov, cameraPos, cameraFront, cameraUp);
-        //drawFountain(fountainShader, fountain, fov, cameraPos, cameraFront, cameraUp);
         drawChurch(churchShader, church, fov, cameraPos, cameraFront, cameraUp);
-        //drawTavern(tavernShader, tavern, fov, cameraPos, cameraFront, cameraUp);
 
         drawDoor(leftDoorShader, leftDoor, rightDoorShader, rightDoor, fov, cameraPos, cameraFront, cameraUp, door);
+
+        drawPointLight(pointLightShader, pointLights, fov, cameraPos, cameraFront, cameraUp);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         glfwSwapBuffers(window);
@@ -166,6 +168,7 @@ int main() {
     Cobblestone::freeBuffers();
     Grass::freeBuffers();
     Road::freeBuffers();
+    PointLight::freeBuffers();
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     glfwTerminate();

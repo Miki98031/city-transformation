@@ -2,7 +2,7 @@
 Project from computer graphics using OpenGL
 
 ## Link to video
-
+https://youtu.be/0hg7CGiFtns
 
 ## Controls
 - **WASD** - camera movement

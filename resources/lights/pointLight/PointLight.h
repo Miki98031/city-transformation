@@ -24,7 +24,7 @@ public:
     static float quadratic;
 
 private:
-    const static int numberOfVertices = 288;
+    const static int numberOfVertices = 108;
     static float vertices[numberOfVertices];
     static int counterVertices;
 
@@ -71,14 +71,8 @@ public:
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
             glEnableVertexAttribArray(0);
-
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3*sizeof(float)));
-            glEnableVertexAttribArray(1);
-
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6*sizeof(float)));
-            glEnableVertexAttribArray(2);
 
             pointLightVBO = VBO;
             pointLightVAO = VAO;
@@ -89,18 +83,13 @@ public:
 
     static void loadVertices(std::string verticesPath) {
         std::ifstream in(verticesPath);
-        float x, y, z, n1, n2, n3, t1, t2;
+        float x, y, z;
         int i = 0;
 
-        while(in >> x >> y >> z >> n1 >> n2 >> n3 >> t1 >> t2) {
+        while(in >> x >> y >> z) {
             vertices[i++] = x;
             vertices[i++] = y;
             vertices[i++] = z;
-            vertices[i++] = n1;
-            vertices[i++] = n2;
-            vertices[i++] = n3;
-            vertices[i++] = t1;
-            vertices[i++] = t2;
         }
     }
 

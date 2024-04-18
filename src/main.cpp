@@ -122,8 +122,8 @@ int main() {
     unsigned int grass_specular = Grass::getGrassTextureSpecular();
     grassShader.setInt("material.specular", 1);
 
-    Road road;
-    roadShader.use();
+      Road road;
+      roadShader.use();
     unsigned int road_texture = Road::getRoadTexture();
     roadShader.setInt("material.diffuse", 0);
     unsigned int road_specular = Road::getRoadTextureSpecular();
@@ -148,12 +148,12 @@ int main() {
         glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        drawGrass(grassShader, grass, grass_texture, grass_specular, pointLights, fov, cameraPos, cameraFront, cameraUp);
-        drawRoad(roadShader, road, road_texture, road_specular, pointLights, fov, cameraPos, cameraFront, cameraUp);
-        drawCobblestone(cobblestoneShader, cobblestone, cobblestone_texture, fov, cameraPos, cameraFront, cameraUp);
-
         drawBuildingBase(buildingBaseShader, buildings, fov, cameraPos, cameraFront, cameraUp);
         drawBuildingRoof(buildingRoofShader, buildings, fov, cameraPos, cameraFront, cameraUp);
+
+        drawCobblestone(cobblestoneShader, cobblestone, cobblestone_texture, fov, cameraPos, cameraFront, cameraUp);
+        drawGrass(grassShader, grass, grass_texture, grass_specular, pointLights, fov, cameraPos, cameraFront, cameraUp);
+        drawRoad(roadShader, road, road_texture, road_specular, pointLights, fov, cameraPos, cameraFront, cameraUp);
 
         drawChurch(churchShader, church, fov, cameraPos, cameraFront, cameraUp);
 

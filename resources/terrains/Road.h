@@ -24,7 +24,7 @@ private:
     const static int SIZE_Z = 1;
     const static int VERTEX_COUNT_X = 40;
     const static int VERTEX_COUNT_Z = 1;
-    const static int count = VERTEX_COUNT_X * VERTEX_COUNT_Z * 6 * 8;
+    const static int count = VERTEX_COUNT_X * VERTEX_COUNT_Z * 6 * 5;
 
     static float vertices[count];
     static int counterVertices;
@@ -61,17 +61,17 @@ public:
                 //std::cout << t1bx << " " << t1by << " " << t1bz << std::endl;
                 //std::cout << t1cx << " " << t1cy << " " << t1cz << std::endl << std::endl;
 
-                vertices[vp++] = t1bx; vertices[vp++] = t1by; vertices[vp++] = t1bz; vertices[vp++] = 0.0; vertices[vp++] = 1.0; vertices[vp++] = 0.0; vertices[vp++] = 1.0; vertices[vp++] = 0.0;
-                vertices[vp++] = t1ax; vertices[vp++] = t1ay; vertices[vp++] = t1az; vertices[vp++] = 0.0; vertices[vp++] = 1.0; vertices[vp++] = 0.0; vertices[vp++] = 0.0; vertices[vp++] = 0.0;
-                vertices[vp++] = t1cx; vertices[vp++] = t1cy; vertices[vp++] = t1cz; vertices[vp++] = 0.0; vertices[vp++] = 1.0; vertices[vp++] = 0.0; vertices[vp++] = 1.0; vertices[vp++] = 1.0;
+                vertices[vp++] = t1bx; vertices[vp++] = t1by; vertices[vp++] = t1bz; vertices[vp++] = 1.0; vertices[vp++] = 0.0;
+                vertices[vp++] = t1ax; vertices[vp++] = t1ay; vertices[vp++] = t1az; vertices[vp++] = 0.0; vertices[vp++] = 0.0;
+                vertices[vp++] = t1cx; vertices[vp++] = t1cy; vertices[vp++] = t1cz; vertices[vp++] = 1.0; vertices[vp++] = 1.0;
 
                 //std::cout << t2ax << " " << t2ay << " " << t2az << std::endl;
                 //std::cout << t2bx << " " << t2by << " " << t2bz << std::endl;
                 //std::cout << t2cx << " " << t2cy << " " << t2cz << std::endl << std::endl;
 
-                vertices[vp++] = t2bx; vertices[vp++] = t2by; vertices[vp++] = t2bz; vertices[vp++] = 0.0; vertices[vp++] = 1.0; vertices[vp++] = 0.0; vertices[vp++] = 0.0; vertices[vp++] = 1.0;
-                vertices[vp++] = t2ax; vertices[vp++] = t2ay; vertices[vp++] = t2az; vertices[vp++] = 0.0; vertices[vp++] = 1.0; vertices[vp++] = 0.0; vertices[vp++] = 1.0; vertices[vp++] = 1.0;
-                vertices[vp++] = t2cx; vertices[vp++] = t2cy; vertices[vp++] = t2cz; vertices[vp++] = 0.0; vertices[vp++] = 1.0; vertices[vp++] = 0.0; vertices[vp++] = 0.0; vertices[vp++] = 0.0;
+                vertices[vp++] = t2bx; vertices[vp++] = t2by; vertices[vp++] = t2bz; vertices[vp++] = 0.0; vertices[vp++] = 1.0;
+                vertices[vp++] = t2ax; vertices[vp++] = t2ay; vertices[vp++] = t2az; vertices[vp++] = 1.0; vertices[vp++] = 1.0;
+                vertices[vp++] = t2cx; vertices[vp++] = t2cy; vertices[vp++] = t2cz; vertices[vp++] = 0.0; vertices[vp++] = 0.0;
             }
         }
     }
@@ -87,14 +87,11 @@ public:
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
             glEnableVertexAttribArray(0);
 
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3*sizeof(float)));
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3*sizeof(float)));
             glEnableVertexAttribArray(1);
-
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6*sizeof(float)));
-            glEnableVertexAttribArray(2);
 
             roadVBO = VBO;
             roadVAO = VAO;

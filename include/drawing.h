@@ -335,6 +335,8 @@ void drawCobblestone(Shader cobblestoneShader, Cobblestone cobblestone, unsigned
 }
 
 void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture, unsigned grass_specular, std::vector<PointLight*> &pointLights, float fov, glm::vec3 &cameraPos, glm::vec3 &cameraFront, glm::vec3 &cameraUp) {
+    grassShader.use();
+
     // set point lights properties
     for (int i=0 ; i < pointLights.size() ; i++) {
         std::string index = std::to_string(i);
@@ -348,7 +350,6 @@ void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture, unsigned
     }
 
     //set projection and view
-    grassShader.use();
     glm::mat4 grassProjection = glm::perspective(glm::radians(fov), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
     grassShader.setMat4("grassProjection", grassProjection);
     glm::mat4 grassView = glm::lookAt(cameraPos,  cameraPos + cameraFront, cameraUp);
@@ -358,7 +359,7 @@ void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture, unsigned
     grassShader.setVec3("viewPos", cameraPos);
 
     //set material properties
-    grassShader.setFloat("material.shininess", 2.0f);
+    grassShader.setFloat("material.shininess", 1.0f);
 
     //bind Texture
     glActiveTexture(GL_TEXTURE0);
@@ -382,6 +383,8 @@ void drawGrass(Shader grassShader, Grass grass, unsigned grass_texture, unsigned
 }
 
 void drawRoad(Shader roadShader, Road road, unsigned road_texture, unsigned road_specular, std::vector<PointLight*> &pointLights, float fov, glm::vec3 &cameraPos, glm::vec3 &cameraFront, glm::vec3 &cameraUp) {
+    roadShader.use();
+
     // set point lights properties
     for (int i=0 ; i < pointLights.size() ; i++) {
         std::string index = std::to_string(i);
@@ -395,7 +398,6 @@ void drawRoad(Shader roadShader, Road road, unsigned road_texture, unsigned road
     }
 
     //set projection and view
-    roadShader.use();
     glm::mat4 roadProjection = glm::perspective(glm::radians(fov), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
     roadShader.setMat4("roadProjection", roadProjection);
     glm::mat4 roadView = glm::lookAt(cameraPos,  cameraPos + cameraFront, cameraUp);
@@ -405,7 +407,7 @@ void drawRoad(Shader roadShader, Road road, unsigned road_texture, unsigned road
     roadShader.setVec3("viewPos", cameraPos);
 
     //set material properties
-    roadShader.setFloat("material.shininess", 64.0f);
+    roadShader.setFloat("material.shininess", 16.0f);
 
     //bind Texture
     roadShader.use();
